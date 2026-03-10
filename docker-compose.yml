@@ -1,11 +1,9 @@
 ---
 services:
   freqtrade:
-    image: freqtradeorg/freqtrade:stable
+    build: .
     restart: unless-stopped
     container_name: freqtrade
-    volumes:
-      - "./user_data:/freqtrade/user_data"
     ports:
       - "8080:8080"
     command: >
