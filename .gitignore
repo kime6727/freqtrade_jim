@@ -1,0 +1,8 @@
+freqtrade-develop/
+freqtrade-develop.zip
+freqtrade_env/
+.DS_Store
+*.pyc
+__pycache__/
+*.sqlite
+*.log
