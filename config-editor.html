@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreqTrade 配置编辑器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00d4ff;
+            font-size: 2em;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 12px 24px;
+            background: #2d2d44;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .tab:hover, .tab.active {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+        .panel {
+            display: none;
+            background: #2d2d44;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .panel.active {
+            display: block;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 18px;
+            color: #00d4ff;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #3d3d5c;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #aaa;
+            font-size: 14px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a2e;
+            border: 1px solid #3d3d5c;
+            color: #fff;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        .btn-primary {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+        .btn-success {
+            background: #00c853;
+            color: #fff;
+        }
+        .btn-warning {
+            background: #ff9800;
+            color: #1a1a2e;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
+        .pair-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .pair-item {
+            background: #1a1a2e;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .pair-item .remove {
+            cursor: pointer;
+            color: #ff5252;
+        }
+        .output {
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .output pre {
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #00d4ff;
+            font-size: 12px;
+        }
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toggle input {
+            width: 50px;
+            height: 26px;
+            -webkit-appearance: none;
+            background: #1a1a2e;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+        }
+        .toggle input:checked {
+            background: #00d4ff;
+        }
+        .toggle input::before {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s;
+        }
+        .toggle input:checked::before {
+            left: 26px;
+        }
+        .roi-item, .timeout-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .roi-item input, .timeout-item input {
+            flex: 1;
+        }
+        .add-btn {
+            background: #3d3d5c;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .status {
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        .status.success {
+            background: #00c853;
+            display: block;
+        }
+        .status.error {
+            background: #ff5252;
+            display: block;
+        }
+        @media (max-width: 768px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 FreqTrade 配置编辑器</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showPanel('basic')">📊 基本设置</button>
+            <button class="tab" onclick="showPanel('exchange')">🏦 交易所设置</button>
+            <button class="tab" onclick="showPanel('strategy')">📈 策略参数</button>
+            <button class="tab" onclick="showPanel('risk')">⚠️ 风险控制</button>
+            <button class="tab" onclick="showPanel('api')">🔐 API设置</button>
+            <button class="tab" onclick="showPanel('export')">📁 导出配置</button>
+        </div>
+
+        <!-- 基本设置 -->
+        <div id="basic" class="panel active">
+            <div class="section">
+                <h3 class="section-title">交易设置</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>最大同时持仓数</label>
+                        <input type="number" id="max_open_trades" value="3" min="1" max="20">
+                        <span class="help-text">同时最多持有几个交易对</span>
+                    </div>
+                    <div class="form-group">
+                        <label>每笔交易金额 (USDT)</label>
+                        <input type="number" id="stake_amount" value="30" min="1">
+                        <span class="help-text">每笔交易投入的金额</span>
+                    </div>
+                    <div class="form-group">
+                        <label>可交易余额比例</label>
+                        <input type="number" id="tradable_balance_ratio" value="0.99" min="0.1" max="1" step="0.01">
+                        <span class="help-text">0.99 = 使用99%的余额</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3 class="section-title">K线周期</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>时间周期</label>
+                        <select id="timeframe">
+                            <option value="1m">1分钟</option>
+                            <option value="5m" selected>5分钟</option>
+                            <option value="15m">15分钟</option>
+                            <option value="1h">1小时</option>
+                            <option value="4h">4小时</option>
+                            <option value="1d">1天</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">运行模式</h3>
+                <div class="form-group">
+                    <div class="toggle">
+                        <input type="checkbox" id="dry_run" checked>
+                        <label>模拟交易模式 (推荐先测试)</label>
+                    </div>
+                    <span class="help-text">开启后不会真实交易，适合测试策略</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 交易所设置 -->
+        <div id="exchange" class="panel">
+            <div class="section">
+                <h3 class="section-title">交易所选择</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>交易所</label>
+                        <select id="exchange_name" onchange="updatePairs()">
+                            <option value="binance">Binance (币安)</option>
+                            <option value="bitget">Bitget</option>
+                            <option value="bybit">Bybit</option>
+                            <option value="okx">OKX</option>
+                            <option value="gate">Gate.io</option>
+                            <option value="kraken">Kraken</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">API 密钥</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="text" id="api_key" placeholder="输入你的 API Key">
+                    </div>
+                    <div class="form-group">
+                        <label>API Secret</label>
+                        <input type="password" id="api_secret" placeholder="输入你的 API Secret">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>API Passphrase (Bitget/OKX需要)</label>
+                        <input type="password" id="api_password" placeholder="可选">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">交易对白名单</h3>
+                <div class="form-group">
+                    <label>添加交易对</label>
+                    <div class="row">
+                        <input type="text" id="new_pair" placeholder="例如: BTC/USDT">
+                        <button class="btn btn-primary" onclick="addPair()">添加</button>
+                    </div>
+                </div>
+                <div class="pair-list" id="pair_list"></div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">交易对黑名单</h3>
+                <div class="form-group">
+                    <label>添加黑名单交易对</label>
+                    <div class="row">
+                        <input type="text" id="new_black_pair" placeholder="例如: BNB/.*">
+                        <button class="btn btn-warning" onclick="addBlackPair()">添加</button>
+                    </div>
+                </div>
+                <div class="pair-list" id="black_pair_list"></div>
+            </div>
+        </div>
+
+        <!-- 策略参数 -->
+        <div id="strategy" class="panel">
+            <div class="section">
+                <h3 class="section-title">策略选择</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>策略名称</label>
+                        <select id="strategy_name">
+                            <option value="SampleStrategy">SampleStrategy (示例策略)</option>
+                            <option value="LearningStrategy">LearningStrategy (学习策略)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">RSI 参数 (LearningStrategy)</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>RSI 买入阈值</label>
+                        <input type="number" id="buy_rsi" value="30" min="1" max="50">
+                        <span class="help-text">RSI低于此值时考虑买入</span>
+                    </div>
+                    <div class="form-group">
+                        <label>RSI 卖出阈值</label>
+                        <input type="number" id="sell_rsi" value="70" min="50" max="100">
+                        <span class="help-text">RSI高于此值时考虑卖出</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">订单设置</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>买入订单类型</label>
+                        <select id="order_type_entry">
+                            <option value="limit">限价单</option>
+                            <option value="market">市价单</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>卖出订单类型</label>
+                        <select id="order_type_exit">
+                            <option value="limit">限价单</option>
+                            <option value="market">市价单</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 风险控制 -->
+        <div id="risk" class="panel">
+            <div class="section">
+                <h3 class="section-title">止损设置</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>止损比例 (%)</label>
+                        <input type="number" id="stoploss" value="-10" min="-50" max="0">
+                        <span class="help-text">例如 -10 表示亏损10%止损</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="toggle">
+                        <input type="checkbox" id="trailing_stop">
+                        <label>启用追踪止损</label>
+                    </div>
+                </div>
+                <div class="row" id="trailing_options" style="display:none;">
+                    <div class="form-group">
+                        <label>追踪止损正偏移 (%)</label>
+                        <input type="number" id="trailing_stop_positive" value="2" step="0.5">
+                    </div>
+                    <div class="form-group">
+                        <label>追踪止损偏移阈值 (%)</label>
+                        <input type="number" id="trailing_stop_positive_offset" value="3" step="0.5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">止盈设置 (ROI)</h3>
+                <div id="roi_list">
+                    <div class="roi-item">
+                        <input type="number" placeholder="分钟" value="0" class="roi-minutes">
+                        <span>分钟后盈利</span>
+                        <input type="number" placeholder="%" value="10" step="0.5" class="roi-profit">
+                        <span>%卖出</span>
+                        <span class="add-btn" onclick="removeROI(this)">删除</span>
+                    </div>
+                    <div class="roi-item">
+                        <input type="number" placeholder="分钟" value="30" class="roi-minutes">
+                        <span>分钟后盈利</span>
+                        <input type="number" placeholder="%" value="5" step="0.5" class="roi-profit">
+                        <span>%卖出</span>
+                        <span class="add-btn" onclick="removeROI(this)">删除</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addROI()">添加止盈规则</button>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">超时设置</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>买入超时 (分钟)</label>
+                        <input type="number" id="entry_timeout" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label>卖出超时 (分钟)</label>
+                        <input type="number" id="exit_timeout" value="10">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API设置 -->
+        <div id="api" class="panel">
+            <div class="section">
+                <h3 class="section-title">Web UI 设置</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" id="api_username" value="freqtrade">
+                    </div>
+                    <div class="form-group">
+                        <label>密码</label>
+                        <input type="text" id="api_password" value="KJDD9773LJKDkjkj">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>端口</label>
+                        <input type="number" id="api_port" value="8080">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">Telegram 通知</h3>
+                <div class="form-group">
+                    <div class="toggle">
+                        <input type="checkbox" id="telegram_enabled">
+                        <label>启用 Telegram 通知</label>
+                    </div>
+                </div>
+                <div class="row" id="telegram_options" style="display:none;">
+                    <div class="form-group">
+                        <label>Bot Token</label>
+                        <input type="text" id="telegram_token" placeholder="从 @BotFather 获取">
+                    </div>
+                    <div class="form-group">
+                        <label>Chat ID</label>
+                        <input type="text" id="telegram_chat_id" placeholder="你的 Telegram Chat ID">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导出配置 -->
+        <div id="export" class="panel">
+            <div class="section">
+                <h3 class="section-title">生成配置文件</h3>
+                <button class="btn btn-success" onclick="generateConfig()">生成 config.json</button>
+                <button class="btn btn-primary" onclick="generateStrategy()">生成策略文件</button>
+                <button class="btn btn-warning" onclick="copyConfig()">复制配置</button>
+                <button class="btn btn-primary" onclick="downloadConfig()">下载配置</button>
+            </div>
+
+            <div class="output">
+                <h3 style="margin-bottom: 15px; color: #00d4ff;">config.json 预览</h3>
+                <pre id="config_output"></pre>
+            </div>
+
+            <div class="output" style="margin-top: 20px;">
+                <h3 style="margin-bottom: 15px; color: #00d4ff;">docker-compose.yml 预览</h3>
+                <pre id="compose_output"></pre>
+            </div>
+
+            <div class="status" id="status"></div>
+        </div>
+    </div>
+
+    <script>
+        let pairs = ['BTC/USDT', 'ETH/USDT', 'BNB/USDT', 'SOL/USDT', 'XRP/USDT'];
+        let blackPairs = [];
+
+        function showPanel(panelId) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(panelId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function updatePairList() {
+            const list = document.getElementById('pair_list');
+            list.innerHTML = pairs.map(p => `
+                <div class="pair-item">
+                    <span>${p}</span>
+                    <span class="remove" onclick="removePair('${p}')">✕</span>
+                </div>
+            `).join('');
+        }
+
+        function updateBlackPairList() {
+            const list = document.getElementById('black_pair_list');
+            list.innerHTML = blackPairs.map(p => `
+                <div class="pair-item">
+                    <span>${p}</span>
+                    <span class="remove" onclick="removeBlackPair('${p}')">✕</span>
+                </div>
+            `).join('');
+        }
+
+        function addPair() {
+            const input = document.getElementById('new_pair');
+            const pair = input.value.trim().toUpperCase();
+            if (pair && !pairs.includes(pair)) {
+                pairs.push(pair);
+                updatePairList();
+                input.value = '';
+            }
+        }
+
+        function removePair(pair) {
+            pairs = pairs.filter(p => p !== pair);
+            updatePairList();
+        }
+
+        function addBlackPair() {
+            const input = document.getElementById('new_black_pair');
+            const pair = input.value.trim();
+            if (pair && !blackPairs.includes(pair)) {
+                blackPairs.push(pair);
+                updateBlackPairList();
+                input.value = '';
+            }
+        }
+
+        function removeBlackPair(pair) {
+            blackPairs = blackPairs.filter(p => p !== pair);
+            updateBlackPairList();
+        }
+
+        function addROI() {
+            const list = document.getElementById('roi_list');
+            const div = document.createElement('div');
+            div.className = 'roi-item';
+            div.innerHTML = `
+                <input type="number" placeholder="分钟" value="60" class="roi-minutes">
+                <span>分钟后盈利</span>
+                <input type="number" placeholder="%" value="3" step="0.5" class="roi-profit">
+                <span>%卖出</span>
+                <span class="add-btn" onclick="removeROI(this)">删除</span>
+            `;
+            list.appendChild(div);
+        }
+
+        function removeROI(btn) {
+            btn.parentElement.remove();
+        }
+
+        function getROIConfig() {
+            const items = document.querySelectorAll('.roi-item');
+            const roi = {};
+            items.forEach(item => {
+                const minutes = item.querySelector('.roi-minutes').value;
+                const profit = item.querySelector('.roi-profit').value;
+                roi[minutes] = parseFloat(profit) / 100;
+            });
+            return roi;
+        }
+
+        function generateConfig() {
+            const config = {
+                "max_open_trades": parseInt(document.getElementById('max_open_trades').value),
+                "stake_currency": "USDT",
+                "stake_amount": parseFloat(document.getElementById('stake_amount').value),
+                "tradable_balance_ratio": parseFloat(document.getElementById('tradable_balance_ratio').value),
+                "fiat_display_currency": "CNY",
+                "timeframe": document.getElementById('timeframe').value,
+                "dry_run": document.getElementById('dry_run').checked,
+                "cancel_open_orders_on_exit": false,
+                "unfilledtimeout": {
+                    "entry": parseInt(document.getElementById('entry_timeout').value),
+                    "exit": parseInt(document.getElementById('exit_timeout').value),
+                    "exit_timeout_count": 0,
+                    "unit": "minutes"
+                },
+                "entry_pricing": {
+                    "price_side": "same",
+                    "use_order_book": true,
+                    "order_book_top": 1,
+                    "price_last_balance": 0.0,
+                    "check_depth_of_market": {
+                        "enabled": false,
+                        "bids_to_ask_delta": 1
+                    }
+                },
+                "exit_pricing": {
+                    "price_side": "same",
+                    "use_order_book": true,
+                    "order_book_top": 1
+                },
+                "exchange": {
+                    "name": document.getElementById('exchange_name').value,
+                    "key": document.getElementById('api_key').value,
+                    "secret": document.getElementById('api_secret').value,
+                    "password": document.getElementById('api_password').value || undefined,
+                    "ccxt_config": {},
+                    "ccxt_async_config": {},
+                    "pair_whitelist": pairs,
+                    "pair_blacklist": blackPairs
+                },
+                "pairlists": [
+                    {"method": "StaticPairList"}
+                ],
+                "telegram": {
+                    "enabled": document.getElementById('telegram_enabled').checked,
+                    "token": document.getElementById('telegram_token').value,
+                    "chat_id": document.getElementById('telegram_chat_id').value
+                },
+                "api_server": {
+                    "enabled": true,
+                    "listen_ip_address": "0.0.0.0",
+                    "listen_port": parseInt(document.getElementById('api_port').value),
+                    "verbosity": "error",
+                    "jwt_secret_key": "freqtrade_jwt_secret_" + Math.random().toString(36).substring(7),
+                    "ws_token": "freqtrade_ws_token_" + Math.random().toString(36).substring(7),
+                    "CORS_origins": [],
+                    "username": document.getElementById('api_username').value,
+                    "password": document.getElementById('api_password').value
+                },
+                "bot_name": "freqtrade_bot",
+                "initial_state": "running",
+                "force_entry_enable": true,
+                "internals": {
+                    "process_throttle_secs": 5
+                }
+            };
+
+            if (document.getElementById('trailing_stop').checked) {
+                config.trailing_stop = true;
+                config.trailing_stop_positive = parseFloat(document.getElementById('trailing_stop_positive').value) / 100;
+                config.trailing_stop_positive_offset = parseFloat(document.getElementById('trailing_stop_positive_offset').value) / 100;
+                config.trailing_only_offset_is_reached = true;
+            }
+
+            document.getElementById('config_output').textContent = JSON.stringify(config, null, 4);
+
+            const compose = `---
+services:
+  freqtrade:
+    build: .
+    restart: unless-stopped
+    container_name: freqtrade
+    ports:
+      - "${document.getElementById('api_port').value}:${document.getElementById('api_port').value}"
+    command: >
+      trade
+      --logfile /freqtrade/user_data/logs/freqtrade.log
+      --db-url sqlite:////freqtrade/user_data/tradesv3.sqlite
+      --config /freqtrade/user_data/config.json
+      --strategy ${document.getElementById('strategy_name').value}`;
+
+            document.getElementById('compose_output').textContent = compose;
+
+            showStatus('配置已生成！', 'success');
+            return config;
+        }
+
+        function generateStrategy() {
+            const strategy = `# 自动生成的策略文件
+import numpy as np
+import pandas as pd
+from pandas import DataFrame
+from freqtrade.strategy import IStrategy, IntParameter
+import talib.abstract as ta
+
+
+class ${document.getElementById('strategy_name').value}(IStrategy):
+    INTERFACE_VERSION = 3
+    timeframe = "${document.getElementById('timeframe').value}"
+    can_short = False
+    startup_candle_count = 200
+
+    # 止损设置
+    stoploss = ${parseFloat(document.getElementById('stoploss').value) / 100}
+
+    # 止盈设置
+    minimal_roi = ${JSON.stringify(getROIConfig(), null, 4).replace(/"/g, '')}
+
+    # 追踪止损
+    trailing_stop = ${document.getElementById('trailing_stop').checked}
+    ${document.getElementById('trailing_stop').checked ? `trailing_stop_positive = ${parseFloat(document.getElementById('trailing_stop_positive').value) / 100}
+    trailing_stop_positive_offset = ${parseFloat(document.getElementById('trailing_stop_positive_offset').value) / 100}
+    trailing_only_offset_is_reached = True` : ''}
+
+    # 可优化参数
+    buy_rsi = IntParameter(20, 40, default=${document.getElementById('buy_rsi').value}, space="buy")
+    sell_rsi = IntParameter(60, 80, default=${document.getElementById('sell_rsi').value}, space="sell")
+
+    # 订单类型
+    order_types = {
+        "entry": "${document.getElementById('order_type_entry').value}",
+        "exit": "${document.getElementById('order_type_exit').value}",
+        "stoploss": "market",
+        "stoploss_on_exchange": False
+    }
+
+    def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        dataframe['rsi'] = ta.RSI(dataframe, timeperiod=14)
+        return dataframe
+
+    def populate_entry_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        dataframe.loc[
+            (dataframe['rsi'] < self.buy_rsi.value) &
+            (dataframe['volume'] > 0),
+            'enter_long'] = 1
+        return dataframe
+
+    def populate_exit_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        dataframe.loc[
+            (dataframe['rsi'] > self.sell_rsi.value),
+            'exit_long'] = 1
+        return dataframe
+`;
+
+            document.getElementById('config_output').textContent = strategy;
+            showStatus('策略文件已生成！', 'success');
+        }
+
+        function copyConfig() {
+            const config = document.getElementById('config_output').textContent;
+            navigator.clipboard.writeText(config).then(() => {
+                showStatus('已复制到剪贴板！', 'success');
+            });
+        }
+
+        function downloadConfig() {
+            const config = document.getElementById('config_output').textContent;
+            const blob = new Blob([config], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'config.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showStatus('配置文件已下载！', 'success');
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+            setTimeout(() => status.className = 'status', 3000);
+        }
+
+        function updatePairs() {
+            const exchange = document.getElementById('exchange_name').value;
+            const defaultPairs = {
+                'binance': ['BTC/USDT', 'ETH/USDT', 'BNB/USDT', 'SOL/USDT', 'XRP/USDT'],
+                'bitget': ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'XRP/USDT', 'DOGE/USDT'],
+                'bybit': ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'XRP/USDT', 'DOGE/USDT'],
+                'okx': ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'XRP/USDT', 'DOGE/USDT'],
+                'gate': ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'XRP/USDT', 'DOGE/USDT'],
+                'kraken': ['BTC/USD', 'ETH/USD', 'SOL/USD', 'XRP/USD', 'DOGE/USD']
+            };
+            pairs = defaultPairs[exchange] || defaultPairs['binance'];
+            updatePairList();
+        }
+
+        document.getElementById('trailing_stop').addEventListener('change', function() {
+            document.getElementById('trailing_options').style.display = this.checked ? 'grid' : 'none';
+        });
+
+        document.getElementById('telegram_enabled').addEventListener('change', function() {
+            document.getElementById('telegram_options').style.display = this.checked ? 'grid' : 'none';
+        });
+
+        updatePairList();
+        generateConfig();
+    </script>
+</body>
+</html>
