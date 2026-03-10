@@ -16,6 +16,26 @@
         .container { max-width: 1400px; margin: 0 auto; }
         h1 { text-align: center; margin-bottom: 20px; color: #00d4ff; font-size: 1.8em; }
         
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: #2d2d44;
+            padding: 40px;
+            border-radius: 12px;
+        }
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00d4ff;
+        }
+        .login-container input {
+            margin-bottom: 15px;
+        }
+        .login-container .btn {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
         .header-bar {
             display: flex;
             justify-content: space-between;
@@ -155,14 +175,14 @@
         }
         .toggle input:checked::before { left: 22px; }
         
-        .roi-item, .timeout-item {
+        .roi-item {
             display: flex;
             gap: 8px;
             margin-bottom: 8px;
             align-items: center;
             font-size: 12px;
         }
-        .roi-item input, .timeout-item input { flex: 1; }
+        .roi-item input { flex: 1; }
         .add-btn {
             background: #3d3d5c;
             padding: 6px 12px;
@@ -203,10 +223,7 @@
             color: #00ff00;
         }
         
-        .backup-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
+        .backup-list { max-height: 300px; overflow-y: auto; }
         .backup-item {
             display: flex;
             justify-content: space-between;
@@ -241,6 +258,9 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         
+        .main-content { display: none; }
+        .main-content.show { display: block; }
+        
         @media (max-width: 768px) {
             .row { grid-template-columns: 1fr; }
             .header-bar { flex-direction: column; gap: 10px; }
@@ -251,315 +271,336 @@
     <div class="container">
         <h1>🤖 FreqTrade 配置管理器</h1>
         
-        <div class="header-bar">
-            <div>
-                <span>状态: </span>
-                <span id="status-badge" class="status-badge status-loading">检测中...</span>
+        <!-- 登录界面 -->
+        <div id="login-container" class="login-container">
+            <h2>🔐 登录</h2>
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="login_username" placeholder="请输入用户名">
             </div>
-            <div>
-                <button class="btn btn-warning" onclick="restartFreqtrade()">🔄 重启 FreqTrade</button>
-                <button class="btn btn-primary" onclick="loadConfig()">📥 加载配置</button>
-                <button class="btn btn-success" onclick="saveAndRestart()">💾 保存并重启</button>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="login_password" placeholder="请输入密码">
             </div>
+            <button class="btn btn-primary" onclick="login()">登录</button>
+            <p style="margin-top: 15px; font-size: 12px; color: #666; text-align: center;">
+                默认账号: admin / KJDD9773LJKDkjkj
+            </p>
         </div>
         
-        <div class="tabs">
-            <button class="tab active" onclick="showPanel('basic')">📊 基本设置</button>
-            <button class="tab" onclick="showPanel('exchange')">🏦 交易所</button>
-            <button class="tab" onclick="showPanel('strategy')">📈 策略</button>
-            <button class="tab" onclick="showPanel('risk')">⚠️ 风险控制</button>
-            <button class="tab" onclick="showPanel('api')">🔐 API/通知</button>
-            <button class="tab" onclick="showPanel('backups')">📦 备份</button>
-            <button class="tab" onclick="showPanel('logs')">📋 日志</button>
-            <button class="tab" onclick="showPanel('export')">📁 导出</button>
-        </div>
-
-        <!-- 基本设置 -->
-        <div id="basic" class="panel active">
-            <div class="section">
-                <h3 class="section-title">交易设置</h3>
-                <div class="row">
-                    <div class="form-group">
-                        <label>最大同时持仓数</label>
-                        <input type="number" id="max_open_trades" value="3" min="1" max="20">
-                        <span class="help-text">同时最多持有几个交易对</span>
-                    </div>
-                    <div class="form-group">
-                        <label>每笔交易金额 (USDT)</label>
-                        <input type="number" id="stake_amount" value="30" min="1">
-                    </div>
-                    <div class="form-group">
-                        <label>可交易余额比例</label>
-                        <input type="number" id="tradable_balance_ratio" value="0.99" min="0.1" max="1" step="0.01">
-                    </div>
+        <!-- 主界面 -->
+        <div id="main-content" class="main-content">
+            <div class="header-bar">
+                <div>
+                    <span>状态: </span>
+                    <span id="status-badge" class="status-badge status-loading">检测中...</span>
+                </div>
+                <div>
+                    <button class="btn btn-danger" onclick="logout()">🚪 退出</button>
+                    <button class="btn btn-warning" onclick="restartFreqtrade()">🔄 重启</button>
+                    <button class="btn btn-primary" onclick="loadConfig()">📥 加载</button>
+                    <button class="btn btn-success" onclick="saveAndRestart()">💾 保存并重启</button>
                 </div>
             </div>
             
-            <div class="section">
-                <h3 class="section-title">K线周期</h3>
-                <div class="row">
-                    <div class="form-group">
-                        <label>时间周期</label>
-                        <select id="timeframe">
-                            <option value="1m">1分钟</option>
-                            <option value="5m" selected>5分钟</option>
-                            <option value="15m">15分钟</option>
-                            <option value="1h">1小时</option>
-                            <option value="4h">4小时</option>
-                            <option value="1d">1天</option>
-                        </select>
-                    </div>
-                </div>
+            <div class="tabs">
+                <button class="tab active" onclick="showPanel('basic')">📊 基本设置</button>
+                <button class="tab" onclick="showPanel('exchange')">🏦 交易所</button>
+                <button class="tab" onclick="showPanel('strategy')">📈 策略</button>
+                <button class="tab" onclick="showPanel('risk')">⚠️ 风险控制</button>
+                <button class="tab" onclick="showPanel('api')">🔐 API/通知</button>
+                <button class="tab" onclick="showPanel('backups')">📦 备份</button>
+                <button class="tab" onclick="showPanel('logs')">📋 日志</button>
+                <button class="tab" onclick="showPanel('export')">📁 导出</button>
             </div>
 
-            <div class="section">
-                <h3 class="section-title">运行模式</h3>
-                <div class="form-group">
-                    <div class="toggle">
-                        <input type="checkbox" id="dry_run" checked>
-                        <label>模拟交易模式 (推荐先测试)</label>
-                    </div>
-                    <span class="help-text" style="color: #ff9800;">⚠️ 关闭后将使用真实资金交易！</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 交易所设置 -->
-        <div id="exchange" class="panel">
-            <div class="section">
-                <h3 class="section-title">交易所选择</h3>
-                <div class="row">
-                    <div class="form-group">
-                        <label>交易所</label>
-                        <select id="exchange_name" onchange="updatePairs()">
-                            <option value="binance">Binance (币安)</option>
-                            <option value="bitget">Bitget</option>
-                            <option value="bybit">Bybit</option>
-                            <option value="okx">OKX</option>
-                            <option value="gate">Gate.io</option>
-                            <option value="kraken">Kraken</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h3 class="section-title">API 密钥</h3>
-                <div class="row">
-                    <div class="form-group">
-                        <label>API Key</label>
-                        <input type="text" id="api_key" placeholder="输入你的 API Key">
-                    </div>
-                    <div class="form-group">
-                        <label>API Secret</label>
-                        <input type="password" id="api_secret" placeholder="输入你的 API Secret">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="form-group">
-                        <label>API Passphrase (Bitget/OKX需要)</label>
-                        <input type="password" id="exchange_password" placeholder="可选">
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h3 class="section-title">交易对白名单</h3>
-                <div class="form-group">
+            <!-- 基本设置 -->
+            <div id="basic" class="panel active">
+                <div class="section">
+                    <h3 class="section-title">交易设置</h3>
                     <div class="row">
-                        <input type="text" id="new_pair" placeholder="例如: BTC/USDT">
-                        <button class="btn btn-primary" onclick="addPair()">添加</button>
+                        <div class="form-group">
+                            <label>最大同时持仓数</label>
+                            <input type="number" id="max_open_trades" value="3" min="1" max="20">
+                            <span class="help-text">同时最多持有几个交易对</span>
+                        </div>
+                        <div class="form-group">
+                            <label>每笔交易金额 (USDT)</label>
+                            <input type="number" id="stake_amount" value="30" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>可交易余额比例</label>
+                            <input type="number" id="tradable_balance_ratio" value="0.99" min="0.1" max="1" step="0.01">
+                        </div>
                     </div>
                 </div>
-                <div class="pair-list" id="pair_list"></div>
-            </div>
-
-            <div class="section">
-                <h3 class="section-title">交易对黑名单</h3>
-                <div class="form-group">
+                
+                <div class="section">
+                    <h3 class="section-title">K线周期</h3>
                     <div class="row">
-                        <input type="text" id="new_black_pair" placeholder="例如: BNB/.*">
-                        <button class="btn btn-warning" onclick="addBlackPair()">添加</button>
+                        <div class="form-group">
+                            <label>时间周期</label>
+                            <select id="timeframe">
+                                <option value="1m">1分钟</option>
+                                <option value="5m" selected>5分钟</option>
+                                <option value="15m">15分钟</option>
+                                <option value="1h">1小时</option>
+                                <option value="4h">4小时</option>
+                                <option value="1d">1天</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="pair-list" id="black_pair_list"></div>
-            </div>
-        </div>
 
-        <!-- 策略参数 -->
-        <div id="strategy" class="panel">
-            <div class="section">
-                <h3 class="section-title">策略选择</h3>
-                <div class="row">
+                <div class="section">
+                    <h3 class="section-title">运行模式</h3>
                     <div class="form-group">
-                        <label>策略名称</label>
-                        <select id="strategy_name"></select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h3 class="section-title">RSI 参数</h3>
-                <div class="row">
-                    <div class="form-group">
-                        <label>RSI 买入阈值</label>
-                        <input type="number" id="buy_rsi" value="30" min="1" max="50">
-                        <span class="help-text">RSI低于此值时考虑买入</span>
-                    </div>
-                    <div class="form-group">
-                        <label>RSI 卖出阈值</label>
-                        <input type="number" id="sell_rsi" value="70" min="50" max="100">
+                        <div class="toggle">
+                            <input type="checkbox" id="dry_run" checked>
+                            <label>模拟交易模式 (推荐先测试)</label>
+                        </div>
+                        <span class="help-text" style="color: #ff9800;">⚠️ 关闭后将使用真实资金交易！</span>
                     </div>
                 </div>
             </div>
 
-            <div class="section">
-                <h3 class="section-title">订单设置</h3>
-                <div class="row">
-                    <div class="form-group">
-                        <label>买入订单类型</label>
-                        <select id="order_type_entry">
-                            <option value="limit">限价单</option>
-                            <option value="market">市价单</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>卖出订单类型</label>
-                        <select id="order_type_exit">
-                            <option value="limit">限价单</option>
-                            <option value="market">市价单</option>
-                        </select>
+            <!-- 交易所设置 -->
+            <div id="exchange" class="panel">
+                <div class="section">
+                    <h3 class="section-title">交易所选择</h3>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>交易所</label>
+                            <select id="exchange_name" onchange="updatePairs()">
+                                <option value="binance">Binance (币安)</option>
+                                <option value="bitget">Bitget</option>
+                                <option value="bybit">Bybit</option>
+                                <option value="okx">OKX</option>
+                                <option value="gate">Gate.io</option>
+                                <option value="kraken">Kraken</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- 风险控制 -->
-        <div id="risk" class="panel">
-            <div class="section">
-                <h3 class="section-title">止损设置</h3>
-                <div class="row">
-                    <div class="form-group">
-                        <label>止损比例 (%)</label>
-                        <input type="number" id="stoploss" value="-10" min="-50" max="0">
-                        <span class="help-text">例如 -10 表示亏损10%止损</span>
+                <div class="section">
+                    <h3 class="section-title">API 密钥</h3>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>API Key</label>
+                            <input type="text" id="api_key" placeholder="输入你的 API Key">
+                        </div>
+                        <div class="form-group">
+                            <label>API Secret</label>
+                            <input type="password" id="api_secret" placeholder="输入你的 API Secret">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>API Passphrase (Bitget/OKX需要)</label>
+                            <input type="password" id="exchange_password" placeholder="可选">
+                        </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <div class="toggle">
-                        <input type="checkbox" id="trailing_stop">
-                        <label>启用追踪止损</label>
-                    </div>
-                </div>
-                <div class="row" id="trailing_options" style="display:none;">
-                    <div class="form-group">
-                        <label>追踪止损正偏移 (%)</label>
-                        <input type="number" id="trailing_stop_positive" value="2" step="0.5">
-                    </div>
-                    <div class="form-group">
-                        <label>追踪止损偏移阈值 (%)</label>
-                        <input type="number" id="trailing_stop_positive_offset" value="3" step="0.5">
-                    </div>
-                </div>
-            </div>
 
-            <div class="section">
-                <h3 class="section-title">止盈设置 (ROI)</h3>
-                <div id="roi_list"></div>
-                <button class="btn btn-primary" onclick="addROI()">添加止盈规则</button>
-            </div>
-
-            <div class="section">
-                <h3 class="section-title">超时设置</h3>
-                <div class="row">
+                <div class="section">
+                    <h3 class="section-title">交易对白名单</h3>
                     <div class="form-group">
-                        <label>买入超时 (分钟)</label>
-                        <input type="number" id="entry_timeout" value="10">
+                        <div class="row">
+                            <input type="text" id="new_pair" placeholder="例如: BTC/USDT">
+                            <button class="btn btn-primary" onclick="addPair()">添加</button>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>卖出超时 (分钟)</label>
-                        <input type="number" id="exit_timeout" value="10">
-                    </div>
+                    <div class="pair-list" id="pair_list"></div>
                 </div>
-            </div>
-        </div>
 
-        <!-- API设置 -->
-        <div id="api" class="panel">
-            <div class="section">
-                <h3 class="section-title">Web UI 设置</h3>
-                <div class="row">
+                <div class="section">
+                    <h3 class="section-title">交易对黑名单</h3>
                     <div class="form-group">
-                        <label>用户名</label>
-                        <input type="text" id="api_username" value="freqtrade">
+                        <div class="row">
+                            <input type="text" id="new_black_pair" placeholder="例如: BNB/.*">
+                            <button class="btn btn-warning" onclick="addBlackPair()">添加</button>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>密码</label>
-                        <input type="text" id="api_password" value="">
-                    </div>
-                    <div class="form-group">
-                        <label>端口</label>
-                        <input type="number" id="api_port" value="8080">
-                    </div>
+                    <div class="pair-list" id="black_pair_list"></div>
                 </div>
             </div>
 
-            <div class="section">
-                <h3 class="section-title">Telegram 通知</h3>
-                <div class="form-group">
-                    <div class="toggle">
-                        <input type="checkbox" id="telegram_enabled">
-                        <label>启用 Telegram 通知</label>
+            <!-- 策略参数 -->
+            <div id="strategy" class="panel">
+                <div class="section">
+                    <h3 class="section-title">策略选择</h3>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>策略名称</label>
+                            <select id="strategy_name"></select>
+                        </div>
                     </div>
                 </div>
-                <div class="row" id="telegram_options" style="display:none;">
-                    <div class="form-group">
-                        <label>Bot Token</label>
-                        <input type="text" id="telegram_token" placeholder="从 @BotFather 获取">
+
+                <div class="section">
+                    <h3 class="section-title">RSI 参数</h3>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>RSI 买入阈值</label>
+                            <input type="number" id="buy_rsi" value="30" min="1" max="50">
+                            <span class="help-text">RSI低于此值时考虑买入</span>
+                        </div>
+                        <div class="form-group">
+                            <label>RSI 卖出阈值</label>
+                            <input type="number" id="sell_rsi" value="70" min="50" max="100">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Chat ID</label>
-                        <input type="text" id="telegram_chat_id" placeholder="你的 Telegram Chat ID">
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">订单设置</h3>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>买入订单类型</label>
+                            <select id="order_type_entry">
+                                <option value="limit">限价单</option>
+                                <option value="market">市价单</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>卖出订单类型</label>
+                            <select id="order_type_exit">
+                                <option value="limit">限价单</option>
+                                <option value="market">市价单</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 备份管理 -->
-        <div id="backups" class="panel">
-            <div class="section">
-                <h3 class="section-title">配置备份</h3>
-                <button class="btn btn-primary" onclick="loadBackups()">刷新备份列表</button>
-                <div class="backup-list" id="backup_list" style="margin-top: 15px;"></div>
-            </div>
-        </div>
-
-        <!-- 日志查看 -->
-        <div id="logs" class="panel">
-            <div class="section">
-                <h3 class="section-title">运行日志</h3>
-                <div class="row">
+            <!-- 风险控制 -->
+            <div id="risk" class="panel">
+                <div class="section">
+                    <h3 class="section-title">止损设置</h3>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>止损比例 (%)</label>
+                            <input type="number" id="stoploss" value="-10" min="-50" max="0">
+                            <span class="help-text">例如 -10 表示亏损10%止损</span>
+                        </div>
+                    </div>
                     <div class="form-group">
-                        <label>显示行数</label>
-                        <input type="number" id="log_lines" value="100" min="10" max="1000">
+                        <div class="toggle">
+                            <input type="checkbox" id="trailing_stop">
+                            <label>启用追踪止损</label>
+                        </div>
+                    </div>
+                    <div class="row" id="trailing_options" style="display:none;">
+                        <div class="form-group">
+                            <label>追踪止损正偏移 (%)</label>
+                            <input type="number" id="trailing_stop_positive" value="2" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label>追踪止损偏移阈值 (%)</label>
+                            <input type="number" id="trailing_stop_positive_offset" value="3" step="0.5">
+                        </div>
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="loadLogs()">加载日志</button>
-                <button class="btn btn-warning" onclick="loadLogs()">🔄 刷新</button>
-                <div class="log-viewer" id="log_viewer" style="margin-top: 15px;">点击上方按钮加载日志...</div>
-            </div>
-        </div>
 
-        <!-- 导出配置 -->
-        <div id="export" class="panel">
-            <div class="section">
-                <h3 class="section-title">配置预览</h3>
-                <button class="btn btn-success" onclick="generateConfig()">生成配置</button>
-                <button class="btn btn-primary" onclick="copyConfig()">复制配置</button>
-                <button class="btn btn-warning" onclick="downloadConfig()">下载配置</button>
+                <div class="section">
+                    <h3 class="section-title">止盈设置 (ROI)</h3>
+                    <div id="roi_list"></div>
+                    <button class="btn btn-primary" onclick="addROI()">添加止盈规则</button>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">超时设置</h3>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>买入超时 (分钟)</label>
+                            <input type="number" id="entry_timeout" value="10">
+                        </div>
+                        <div class="form-group">
+                            <label>卖出超时 (分钟)</label>
+                            <input type="number" id="exit_timeout" value="10">
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="output">
-                <pre id="config_output">点击"生成配置"预览...</pre>
+
+            <!-- API设置 -->
+            <div id="api" class="panel">
+                <div class="section">
+                    <h3 class="section-title">Web UI 设置</h3>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>用户名</label>
+                            <input type="text" id="api_username" value="freqtrade">
+                        </div>
+                        <div class="form-group">
+                            <label>密码</label>
+                            <input type="text" id="api_password" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>端口</label>
+                            <input type="number" id="api_port" value="8080">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">Telegram 通知</h3>
+                    <div class="form-group">
+                        <div class="toggle">
+                            <input type="checkbox" id="telegram_enabled">
+                            <label>启用 Telegram 通知</label>
+                        </div>
+                    </div>
+                    <div class="row" id="telegram_options" style="display:none;">
+                        <div class="form-group">
+                            <label>Bot Token</label>
+                            <input type="text" id="telegram_token" placeholder="从 @BotFather 获取">
+                        </div>
+                        <div class="form-group">
+                            <label>Chat ID</label>
+                            <input type="text" id="telegram_chat_id" placeholder="你的 Telegram Chat ID">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 备份管理 -->
+            <div id="backups" class="panel">
+                <div class="section">
+                    <h3 class="section-title">配置备份</h3>
+                    <button class="btn btn-primary" onclick="loadBackups()">刷新备份列表</button>
+                    <div class="backup-list" id="backup_list" style="margin-top: 15px;"></div>
+                </div>
+            </div>
+
+            <!-- 日志查看 -->
+            <div id="logs" class="panel">
+                <div class="section">
+                    <h3 class="section-title">运行日志</h3>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>显示行数</label>
+                            <input type="number" id="log_lines" value="100" min="10" max="1000">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="loadLogs()">加载日志</button>
+                    <button class="btn btn-warning" onclick="loadLogs()">🔄 刷新</button>
+                    <div class="log-viewer" id="log_viewer" style="margin-top: 15px;">点击上方按钮加载日志...</div>
+                </div>
+            </div>
+
+            <!-- 导出配置 -->
+            <div id="export" class="panel">
+                <div class="section">
+                    <h3 class="section-title">配置预览</h3>
+                    <button class="btn btn-success" onclick="generateConfig()">生成配置</button>
+                    <button class="btn btn-primary" onclick="copyConfig()">复制配置</button>
+                    <button class="btn btn-warning" onclick="downloadConfig()">下载配置</button>
+                </div>
+                <div class="output">
+                    <pre id="config_output">点击"生成配置"预览...</pre>
+                </div>
             </div>
         </div>
     </div>
@@ -573,6 +614,8 @@
         const API_BASE = window.location.origin;
         let pairs = [];
         let blackPairs = [];
+        let isLoggedIn = false;
+        let authHeader = '';
 
         function showLoading() { document.getElementById('loading').classList.add('show'); }
         function hideLoading() { document.getElementById('loading').classList.remove('show'); }
@@ -589,6 +632,52 @@
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.getElementById(panelId).classList.add('active');
             event.target.classList.add('active');
+        }
+
+        function login() {
+            const username = document.getElementById('login_username').value;
+            const password = document.getElementById('login_password').value;
+            
+            if (!username || !password) {
+                showToast('请输入用户名和密码', 'error');
+                return;
+            }
+            
+            authHeader = 'Basic ' + btoa(username + ':' + password);
+            isLoggedIn = true;
+            
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('main-content').classList.add('show');
+            
+            checkStatus();
+            loadConfig();
+            loadStrategies();
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            authHeader = '';
+            document.getElementById('login-container').style.display = 'block';
+            document.getElementById('main-content').classList.remove('show');
+            document.getElementById('login_username').value = '';
+            document.getElementById('login_password').value = '';
+        }
+
+        async function apiFetch(url, options = {}) {
+            const headers = {
+                ...options.headers,
+                'Authorization': authHeader
+            };
+            
+            const res = await fetch(url, { ...options, headers });
+            
+            if (res.status === 401) {
+                logout();
+                showToast('登录已过期，请重新登录', 'error');
+                throw new Error('Unauthorized');
+            }
+            
+            return res;
         }
 
         async function checkStatus() {
@@ -612,14 +701,16 @@
         async function loadConfig() {
             showLoading();
             try {
-                const res = await fetch(`${API_BASE}/api/config`);
+                const res = await apiFetch(`${API_BASE}/api/config`);
                 const data = await res.json();
                 if (data.success) {
                     populateForm(data.config);
                     showToast('配置加载成功');
                 }
             } catch (e) {
-                showToast('加载配置失败: ' + e.message, 'error');
+                if (e.message !== 'Unauthorized') {
+                    showToast('加载配置失败: ' + e.message, 'error');
+                }
             }
             hideLoading();
         }
@@ -737,7 +828,7 @@
             const config = buildConfig();
             
             try {
-                const res = await fetch(`${API_BASE}/api/config`, {
+                const res = await apiFetch(`${API_BASE}/api/config`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ config })
@@ -763,7 +854,7 @@
             
             showLoading();
             try {
-                const res = await fetch(`${API_BASE}/api/restart`, { method: 'POST' });
+                const res = await apiFetch(`${API_BASE}/api/restart`, { method: 'POST' });
                 const data = await res.json();
                 if (data.success) {
                     showToast('重启成功！');
@@ -787,7 +878,7 @@
         async function loadBackups() {
             showLoading();
             try {
-                const res = await fetch(`${API_BASE}/api/backups`);
+                const res = await apiFetch(`${API_BASE}/api/backups`);
                 const data = await res.json();
                 const list = document.getElementById('backup_list');
                 if (data.backups && data.backups.length > 0) {
@@ -812,7 +903,7 @@
             
             showLoading();
             try {
-                const res = await fetch(`${API_BASE}/api/backups/${filename}/restore`, { method: 'POST' });
+                const res = await apiFetch(`${API_BASE}/api/backups/${filename}/restore`, { method: 'POST' });
                 const data = await res.json();
                 if (data.success) {
                     showToast('恢复成功！');
@@ -828,7 +919,7 @@
             showLoading();
             const lines = document.getElementById('log_lines').value;
             try {
-                const res = await fetch(`${API_BASE}/api/logs?lines=${lines}`);
+                const res = await apiFetch(`${API_BASE}/api/logs?lines=${lines}`);
                 const data = await res.json();
                 document.getElementById('log_viewer').textContent = data.logs || '无日志';
             } catch (e) {
@@ -839,7 +930,7 @@
 
         async function loadStrategies() {
             try {
-                const res = await fetch(`${API_BASE}/api/strategies`);
+                const res = await apiFetch(`${API_BASE}/api/strategies`);
                 const data = await res.json();
                 const select = document.getElementById('strategy_name');
                 select.innerHTML = data.strategies.map(s => 
@@ -942,11 +1033,9 @@
             document.getElementById('telegram_options').style.display = this.checked ? 'grid' : 'none';
         });
 
-        // 初始化
-        checkStatus();
-        loadConfig();
-        loadStrategies();
-        setInterval(checkStatus, 30000);
+        document.getElementById('login_password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') login();
+        });
     </script>
 </body>
 </html>
