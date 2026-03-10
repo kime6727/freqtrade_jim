@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreqTrade 配置管理器</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 20px; color: #00d4ff; font-size: 1.8em; }
+        
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #2d2d44;
+            border-radius: 12px;
+        }
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .status-running { background: #00c853; color: #fff; }
+        .status-stopped { background: #ff5252; color: #fff; }
+        .status-loading { background: #ff9800; color: #1a1a2e; }
+        
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #2d2d44;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .tab:hover, .tab.active { background: #00d4ff; color: #1a1a2e; }
+        
+        .panel {
+            display: none;
+            background: #2d2d44;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .panel.active { display: block; }
+        
+        .section { margin-bottom: 20px; }
+        .section-title {
+            font-size: 16px;
+            color: #00d4ff;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #3d3d5c;
+        }
+        
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; color: #aaa; font-size: 13px; }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a2e;
+            border: 1px solid #3d3d5c;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #00d4ff; }
+        
+        .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            margin-right: 8px;
+            margin-top: 8px;
+        }
+        .btn-primary { background: #00d4ff; color: #1a1a2e; }
+        .btn-success { background: #00c853; color: #fff; }
+        .btn-warning { background: #ff9800; color: #1a1a2e; }
+        .btn-danger { background: #ff5252; color: #fff; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .pair-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .pair-item {
+            background: #1a1a2e;
+            padding: 6px 12px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+        .pair-item .remove { cursor: pointer; color: #ff5252; font-weight: bold; }
+        
+        .output {
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .output pre {
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #00d4ff;
+            font-size: 11px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .help-text { font-size: 11px; color: #666; margin-top: 3px; }
+        
+        .toggle { display: flex; align-items: center; gap: 10px; }
+        .toggle input {
+            width: 44px;
+            height: 24px;
+            -webkit-appearance: none;
+            background: #1a1a2e;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+        }
+        .toggle input:checked { background: #00d4ff; }
+        .toggle input::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s;
+        }
+        .toggle input:checked::before { left: 22px; }
+        
+        .roi-item, .timeout-item {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+            font-size: 12px;
+        }
+        .roi-item input, .timeout-item input { flex: 1; }
+        .add-btn {
+            background: #3d3d5c;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.success { background: #00c853; display: block; }
+        .toast.error { background: #ff5252; display: block; }
+        .toast.warning { background: #ff9800; color: #1a1a2e; display: block; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .log-viewer {
+            background: #0a0a14;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 11px;
+            max-height: 500px;
+            overflow-y: auto;
+            color: #00ff00;
+        }
+        
+        .backup-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .backup-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #1a1a2e;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loading-overlay.show { display: flex; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #3d3d5c;
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 768px) {
+            .row { grid-template-columns: 1fr; }
+            .header-bar { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 FreqTrade 配置管理器</h1>
+        
+        <div class="header-bar">
+            <div>
+                <span>状态: </span>
+                <span id="status-badge" class="status-badge status-loading">检测中...</span>
+            </div>
+            <div>
+                <button class="btn btn-warning" onclick="restartFreqtrade()">🔄 重启 FreqTrade</button>
+                <button class="btn btn-primary" onclick="loadConfig()">📥 加载配置</button>
+                <button class="btn btn-success" onclick="saveAndRestart()">💾 保存并重启</button>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showPanel('basic')">📊 基本设置</button>
+            <button class="tab" onclick="showPanel('exchange')">🏦 交易所</button>
+            <button class="tab" onclick="showPanel('strategy')">📈 策略</button>
+            <button class="tab" onclick="showPanel('risk')">⚠️ 风险控制</button>
+            <button class="tab" onclick="showPanel('api')">🔐 API/通知</button>
+            <button class="tab" onclick="showPanel('backups')">📦 备份</button>
+            <button class="tab" onclick="showPanel('logs')">📋 日志</button>
+            <button class="tab" onclick="showPanel('export')">📁 导出</button>
+        </div>
+
+        <!-- 基本设置 -->
+        <div id="basic" class="panel active">
+            <div class="section">
+                <h3 class="section-title">交易设置</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>最大同时持仓数</label>
+                        <input type="number" id="max_open_trades" value="3" min="1" max="20">
+                        <span class="help-text">同时最多持有几个交易对</span>
+                    </div>
+                    <div class="form-group">
+                        <label>每笔交易金额 (USDT)</label>
+                        <input type="number" id="stake_amount" value="30" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>可交易余额比例</label>
+                        <input type="number" id="tradable_balance_ratio" value="0.99" min="0.1" max="1" step="0.01">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3 class="section-title">K线周期</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>时间周期</label>
+                        <select id="timeframe">
+                            <option value="1m">1分钟</option>
+                            <option value="5m" selected>5分钟</option>
+                            <option value="15m">15分钟</option>
+                            <option value="1h">1小时</option>
+                            <option value="4h">4小时</option>
+                            <option value="1d">1天</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">运行模式</h3>
+                <div class="form-group">
+                    <div class="toggle">
+                        <input type="checkbox" id="dry_run" checked>
+                        <label>模拟交易模式 (推荐先测试)</label>
+                    </div>
+                    <span class="help-text" style="color: #ff9800;">⚠️ 关闭后将使用真实资金交易！</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 交易所设置 -->
+        <div id="exchange" class="panel">
+            <div class="section">
+                <h3 class="section-title">交易所选择</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>交易所</label>
+                        <select id="exchange_name" onchange="updatePairs()">
+                            <option value="binance">Binance (币安)</option>
+                            <option value="bitget">Bitget</option>
+                            <option value="bybit">Bybit</option>
+                            <option value="okx">OKX</option>
+                            <option value="gate">Gate.io</option>
+                            <option value="kraken">Kraken</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">API 密钥</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="text" id="api_key" placeholder="输入你的 API Key">
+                    </div>
+                    <div class="form-group">
+                        <label>API Secret</label>
+                        <input type="password" id="api_secret" placeholder="输入你的 API Secret">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>API Passphrase (Bitget/OKX需要)</label>
+                        <input type="password" id="exchange_password" placeholder="可选">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">交易对白名单</h3>
+                <div class="form-group">
+                    <div class="row">
+                        <input type="text" id="new_pair" placeholder="例如: BTC/USDT">
+                        <button class="btn btn-primary" onclick="addPair()">添加</button>
+                    </div>
+                </div>
+                <div class="pair-list" id="pair_list"></div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">交易对黑名单</h3>
+                <div class="form-group">
+                    <div class="row">
+                        <input type="text" id="new_black_pair" placeholder="例如: BNB/.*">
+                        <button class="btn btn-warning" onclick="addBlackPair()">添加</button>
+                    </div>
+                </div>
+                <div class="pair-list" id="black_pair_list"></div>
+            </div>
+        </div>
+
+        <!-- 策略参数 -->
+        <div id="strategy" class="panel">
+            <div class="section">
+                <h3 class="section-title">策略选择</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>策略名称</label>
+                        <select id="strategy_name"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">RSI 参数</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>RSI 买入阈值</label>
+                        <input type="number" id="buy_rsi" value="30" min="1" max="50">
+                        <span class="help-text">RSI低于此值时考虑买入</span>
+                    </div>
+                    <div class="form-group">
+                        <label>RSI 卖出阈值</label>
+                        <input type="number" id="sell_rsi" value="70" min="50" max="100">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">订单设置</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>买入订单类型</label>
+                        <select id="order_type_entry">
+                            <option value="limit">限价单</option>
+                            <option value="market">市价单</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>卖出订单类型</label>
+                        <select id="order_type_exit">
+                            <option value="limit">限价单</option>
+                            <option value="market">市价单</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 风险控制 -->
+        <div id="risk" class="panel">
+            <div class="section">
+                <h3 class="section-title">止损设置</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>止损比例 (%)</label>
+                        <input type="number" id="stoploss" value="-10" min="-50" max="0">
+                        <span class="help-text">例如 -10 表示亏损10%止损</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="toggle">
+                        <input type="checkbox" id="trailing_stop">
+                        <label>启用追踪止损</label>
+                    </div>
+                </div>
+                <div class="row" id="trailing_options" style="display:none;">
+                    <div class="form-group">
+                        <label>追踪止损正偏移 (%)</label>
+                        <input type="number" id="trailing_stop_positive" value="2" step="0.5">
+                    </div>
+                    <div class="form-group">
+                        <label>追踪止损偏移阈值 (%)</label>
+                        <input type="number" id="trailing_stop_positive_offset" value="3" step="0.5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">止盈设置 (ROI)</h3>
+                <div id="roi_list"></div>
+                <button class="btn btn-primary" onclick="addROI()">添加止盈规则</button>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">超时设置</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>买入超时 (分钟)</label>
+                        <input type="number" id="entry_timeout" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label>卖出超时 (分钟)</label>
+                        <input type="number" id="exit_timeout" value="10">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API设置 -->
+        <div id="api" class="panel">
+            <div class="section">
+                <h3 class="section-title">Web UI 设置</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" id="api_username" value="freqtrade">
+                    </div>
+                    <div class="form-group">
+                        <label>密码</label>
+                        <input type="text" id="api_password" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>端口</label>
+                        <input type="number" id="api_port" value="8080">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title">Telegram 通知</h3>
+                <div class="form-group">
+                    <div class="toggle">
+                        <input type="checkbox" id="telegram_enabled">
+                        <label>启用 Telegram 通知</label>
+                    </div>
+                </div>
+                <div class="row" id="telegram_options" style="display:none;">
+                    <div class="form-group">
+                        <label>Bot Token</label>
+                        <input type="text" id="telegram_token" placeholder="从 @BotFather 获取">
+                    </div>
+                    <div class="form-group">
+                        <label>Chat ID</label>
+                        <input type="text" id="telegram_chat_id" placeholder="你的 Telegram Chat ID">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 备份管理 -->
+        <div id="backups" class="panel">
+            <div class="section">
+                <h3 class="section-title">配置备份</h3>
+                <button class="btn btn-primary" onclick="loadBackups()">刷新备份列表</button>
+                <div class="backup-list" id="backup_list" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+
+        <!-- 日志查看 -->
+        <div id="logs" class="panel">
+            <div class="section">
+                <h3 class="section-title">运行日志</h3>
+                <div class="row">
+                    <div class="form-group">
+                        <label>显示行数</label>
+                        <input type="number" id="log_lines" value="100" min="10" max="1000">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="loadLogs()">加载日志</button>
+                <button class="btn btn-warning" onclick="loadLogs()">🔄 刷新</button>
+                <div class="log-viewer" id="log_viewer" style="margin-top: 15px;">点击上方按钮加载日志...</div>
+            </div>
+        </div>
+
+        <!-- 导出配置 -->
+        <div id="export" class="panel">
+            <div class="section">
+                <h3 class="section-title">配置预览</h3>
+                <button class="btn btn-success" onclick="generateConfig()">生成配置</button>
+                <button class="btn btn-primary" onclick="copyConfig()">复制配置</button>
+                <button class="btn btn-warning" onclick="downloadConfig()">下载配置</button>
+            </div>
+            <div class="output">
+                <pre id="config_output">点击"生成配置"预览...</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let pairs = [];
+        let blackPairs = [];
+
+        function showLoading() { document.getElementById('loading').classList.add('show'); }
+        function hideLoading() { document.getElementById('loading').classList.remove('show'); }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            setTimeout(() => toast.className = 'toast', 3000);
+        }
+
+        function showPanel(panelId) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(panelId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function checkStatus() {
+            try {
+                const res = await fetch(`${API_BASE}/api/status`);
+                const data = await res.json();
+                const badge = document.getElementById('status-badge');
+                if (data.running) {
+                    badge.textContent = '✅ 运行中';
+                    badge.className = 'status-badge status-running';
+                } else {
+                    badge.textContent = '❌ 已停止';
+                    badge.className = 'status-badge status-stopped';
+                }
+            } catch (e) {
+                document.getElementById('status-badge').textContent = '❌ 无法连接';
+                document.getElementById('status-badge').className = 'status-badge status-stopped';
+            }
+        }
+
+        async function loadConfig() {
+            showLoading();
+            try {
+                const res = await fetch(`${API_BASE}/api/config`);
+                const data = await res.json();
+                if (data.success) {
+                    populateForm(data.config);
+                    showToast('配置加载成功');
+                }
+            } catch (e) {
+                showToast('加载配置失败: ' + e.message, 'error');
+            }
+            hideLoading();
+        }
+
+        function populateForm(config) {
+            document.getElementById('max_open_trades').value = config.max_open_trades || 3;
+            document.getElementById('stake_amount').value = config.stake_amount || 30;
+            document.getElementById('tradable_balance_ratio').value = config.tradable_balance_ratio || 0.99;
+            document.getElementById('timeframe').value = config.timeframe || '5m';
+            document.getElementById('dry_run').checked = config.dry_run !== false;
+
+            if (config.exchange) {
+                document.getElementById('exchange_name').value = config.exchange.name || 'binance';
+                document.getElementById('api_key').value = config.exchange.key || '';
+                document.getElementById('api_secret').value = config.exchange.secret || '';
+                document.getElementById('exchange_password').value = config.exchange.password || '';
+                pairs = config.exchange.pair_whitelist || [];
+                blackPairs = config.exchange.pair_blacklist || [];
+                updatePairList();
+                updateBlackPairList();
+            }
+
+            if (config.api_server) {
+                document.getElementById('api_username').value = config.api_server.username || 'freqtrade';
+                document.getElementById('api_password').value = config.api_server.password || '';
+                document.getElementById('api_port').value = config.api_server.listen_port || 8080;
+            }
+
+            if (config.telegram) {
+                document.getElementById('telegram_enabled').checked = config.telegram.enabled || false;
+                document.getElementById('telegram_token').value = config.telegram.token || '';
+                document.getElementById('telegram_chat_id').value = config.telegram.chat_id || '';
+                document.getElementById('telegram_options').style.display = config.telegram.enabled ? 'grid' : 'none';
+            }
+
+            if (config.unfilledtimeout) {
+                document.getElementById('entry_timeout').value = config.unfilledtimeout.entry || 10;
+                document.getElementById('exit_timeout').value = config.unfilledtimeout.exit || 10;
+            }
+        }
+
+        function buildConfig() {
+            const config = {
+                max_open_trades: parseInt(document.getElementById('max_open_trades').value),
+                stake_currency: "USDT",
+                stake_amount: parseFloat(document.getElementById('stake_amount').value),
+                tradable_balance_ratio: parseFloat(document.getElementById('tradable_balance_ratio').value),
+                fiat_display_currency: "CNY",
+                timeframe: document.getElementById('timeframe').value,
+                dry_run: document.getElementById('dry_run').checked,
+                cancel_open_orders_on_exit: false,
+                unfilledtimeout: {
+                    entry: parseInt(document.getElementById('entry_timeout').value),
+                    exit: parseInt(document.getElementById('exit_timeout').value),
+                    exit_timeout_count: 0,
+                    unit: "minutes"
+                },
+                entry_pricing: {
+                    price_side: "same",
+                    use_order_book: true,
+                    order_book_top: 1,
+                    price_last_balance: 0.0,
+                    check_depth_of_market: { enabled: false, bids_to_ask_delta: 1 }
+                },
+                exit_pricing: {
+                    price_side: "same",
+                    use_order_book: true,
+                    order_book_top: 1
+                },
+                exchange: {
+                    name: document.getElementById('exchange_name').value,
+                    key: document.getElementById('api_key').value,
+                    secret: document.getElementById('api_secret').value,
+                    password: document.getElementById('exchange_password').value || undefined,
+                    ccxt_config: {},
+                    ccxt_async_config: {},
+                    pair_whitelist: pairs,
+                    pair_blacklist: blackPairs
+                },
+                pairlists: [{ method: "StaticPairList" }],
+                telegram: {
+                    enabled: document.getElementById('telegram_enabled').checked,
+                    token: document.getElementById('telegram_token').value,
+                    chat_id: document.getElementById('telegram_chat_id').value
+                },
+                api_server: {
+                    enabled: true,
+                    listen_ip_address: "0.0.0.0",
+                    listen_port: parseInt(document.getElementById('api_port').value),
+                    verbosity: "error",
+                    jwt_secret_key: "freqtrade_jwt_" + Math.random().toString(36).substring(7),
+                    ws_token: "freqtrade_ws_" + Math.random().toString(36).substring(7),
+                    CORS_origins: [],
+                    username: document.getElementById('api_username').value,
+                    password: document.getElementById('api_password').value
+                },
+                bot_name: "freqtrade_bot",
+                initial_state: "running",
+                force_entry_enable: true,
+                internals: { process_throttle_secs: 5 }
+            };
+
+            if (document.getElementById('trailing_stop').checked) {
+                config.trailing_stop = true;
+                config.trailing_stop_positive = parseFloat(document.getElementById('trailing_stop_positive').value) / 100;
+                config.trailing_stop_positive_offset = parseFloat(document.getElementById('trailing_stop_positive_offset').value) / 100;
+                config.trailing_only_offset_is_reached = true;
+            }
+
+            return config;
+        }
+
+        async function saveConfig() {
+            showLoading();
+            const config = buildConfig();
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ config })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('配置保存成功！');
+                    return true;
+                } else {
+                    showToast('保存失败: ' + data.detail, 'error');
+                    return false;
+                }
+            } catch (e) {
+                showToast('保存失败: ' + e.message, 'error');
+                return false;
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function restartFreqtrade() {
+            if (!confirm('确定要重启 FreqTrade 吗？')) return;
+            
+            showLoading();
+            try {
+                const res = await fetch(`${API_BASE}/api/restart`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('重启成功！');
+                    setTimeout(checkStatus, 3000);
+                } else {
+                    showToast('重启失败: ' + data.detail, 'error');
+                }
+            } catch (e) {
+                showToast('重启失败: ' + e.message, 'error');
+            }
+            hideLoading();
+        }
+
+        async function saveAndRestart() {
+            const saved = await saveConfig();
+            if (saved) {
+                await restartFreqtrade();
+            }
+        }
+
+        async function loadBackups() {
+            showLoading();
+            try {
+                const res = await fetch(`${API_BASE}/api/backups`);
+                const data = await res.json();
+                const list = document.getElementById('backup_list');
+                if (data.backups && data.backups.length > 0) {
+                    list.innerHTML = data.backups.map(b => `
+                        <div class="backup-item">
+                            <span>📁 ${b.filename}</span>
+                            <span>${b.created_at}</span>
+                            <button class="btn btn-primary" onclick="restoreBackup('${b.filename}')">恢复</button>
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<p style="color: #666;">暂无备份</p>';
+                }
+            } catch (e) {
+                showToast('加载备份失败', 'error');
+            }
+            hideLoading();
+        }
+
+        async function restoreBackup(filename) {
+            if (!confirm(`确定要恢复备份 ${filename} 吗？`)) return;
+            
+            showLoading();
+            try {
+                const res = await fetch(`${API_BASE}/api/backups/${filename}/restore`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('恢复成功！');
+                    loadConfig();
+                }
+            } catch (e) {
+                showToast('恢复失败', 'error');
+            }
+            hideLoading();
+        }
+
+        async function loadLogs() {
+            showLoading();
+            const lines = document.getElementById('log_lines').value;
+            try {
+                const res = await fetch(`${API_BASE}/api/logs?lines=${lines}`);
+                const data = await res.json();
+                document.getElementById('log_viewer').textContent = data.logs || '无日志';
+            } catch (e) {
+                document.getElementById('log_viewer').textContent = '加载日志失败';
+            }
+            hideLoading();
+        }
+
+        async function loadStrategies() {
+            try {
+                const res = await fetch(`${API_BASE}/api/strategies`);
+                const data = await res.json();
+                const select = document.getElementById('strategy_name');
+                select.innerHTML = data.strategies.map(s => 
+                    `<option value="${s.name}">${s.name}</option>`
+                ).join('');
+            } catch (e) {
+                console.error('加载策略列表失败');
+            }
+        }
+
+        function updatePairList() {
+            const list = document.getElementById('pair_list');
+            list.innerHTML = pairs.map(p => `
+                <div class="pair-item">
+                    <span>${p}</span>
+                    <span class="remove" onclick="removePair('${p}')">✕</span>
+                </div>
+            `).join('');
+        }
+
+        function updateBlackPairList() {
+            const list = document.getElementById('black_pair_list');
+            list.innerHTML = blackPairs.map(p => `
+                <div class="pair-item">
+                    <span>${p}</span>
+                    <span class="remove" onclick="removeBlackPair('${p}')">✕</span>
+                </div>
+            `).join('');
+        }
+
+        function addPair() {
+            const input = document.getElementById('new_pair');
+            const pair = input.value.trim().toUpperCase();
+            if (pair && !pairs.includes(pair)) {
+                pairs.push(pair);
+                updatePairList();
+                input.value = '';
+            }
+        }
+
+        function removePair(pair) {
+            pairs = pairs.filter(p => p !== pair);
+            updatePairList();
+        }
+
+        function addBlackPair() {
+            const input = document.getElementById('new_black_pair');
+            const pair = input.value.trim();
+            if (pair && !blackPairs.includes(pair)) {
+                blackPairs.push(pair);
+                updateBlackPairList();
+                input.value = '';
+            }
+        }
+
+        function removeBlackPair(pair) {
+            blackPairs = blackPairs.filter(p => p !== pair);
+            updateBlackPairList();
+        }
+
+        function addROI() {
+            const list = document.getElementById('roi_list');
+            const div = document.createElement('div');
+            div.className = 'roi-item';
+            div.innerHTML = `
+                <input type="number" placeholder="分钟" value="60" class="roi-minutes">
+                <span>分钟后盈利</span>
+                <input type="number" placeholder="%" value="3" step="0.5" class="roi-profit">
+                <span>%卖出</span>
+                <span class="add-btn" onclick="this.parentElement.remove()">删除</span>
+            `;
+            list.appendChild(div);
+        }
+
+        function generateConfig() {
+            const config = buildConfig();
+            document.getElementById('config_output').textContent = JSON.stringify(config, null, 2);
+        }
+
+        function copyConfig() {
+            const config = document.getElementById('config_output').textContent;
+            navigator.clipboard.writeText(config).then(() => showToast('已复制到剪贴板'));
+        }
+
+        function downloadConfig() {
+            const config = document.getElementById('config_output').textContent;
+            const blob = new Blob([config], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'config.json';
+            a.click();
+            showToast('配置已下载');
+        }
+
+        document.getElementById('trailing_stop').addEventListener('change', function() {
+            document.getElementById('trailing_options').style.display = this.checked ? 'grid' : 'none';
+        });
+
+        document.getElementById('telegram_enabled').addEventListener('change', function() {
+            document.getElementById('telegram_options').style.display = this.checked ? 'grid' : 'none';
+        });
+
+        // 初始化
+        checkStatus();
+        loadConfig();
+        loadStrategies();
+        setInterval(checkStatus, 30000);
+    </script>
+</body>
+</html>
