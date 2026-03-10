@@ -81,36 +81,39 @@
         }
         .panel.active { display: block; }
         
-        .section { margin-bottom: 20px; }
+        .section { margin-bottom: 25px; }
         .section-title {
             font-size: 16px;
             color: #00d4ff;
             margin-bottom: 12px;
             padding-bottom: 8px;
             border-bottom: 1px solid #3d3d5c;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .form-group { margin-bottom: 12px; }
-        label { display: block; margin-bottom: 4px; color: #aaa; font-size: 13px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; color: #fff; font-size: 14px; font-weight: 500; }
         input, select, textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             background: #1a1a2e;
             border: 1px solid #3d3d5c;
             color: #fff;
             border-radius: 6px;
-            font-size: 13px;
+            font-size: 14px;
         }
         input:focus, select:focus, textarea:focus { outline: none; border-color: #00d4ff; }
         
-        .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 14px;
             transition: all 0.3s;
             margin-right: 8px;
             margin-top: 8px;
@@ -119,20 +122,23 @@
         .btn-success { background: #00c853; color: #fff; }
         .btn-warning { background: #ff9800; color: #1a1a2e; }
         .btn-danger { background: #ff5252; color: #fff; }
+        .btn-secondary { background: #3d3d5c; color: #fff; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         
         .pair-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .pair-item {
             background: #1a1a2e;
-            padding: 6px 12px;
-            border-radius: 15px;
+            padding: 8px 14px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 12px;
+            font-size: 13px;
+            border: 1px solid #3d3d5c;
         }
-        .pair-item .remove { cursor: pointer; color: #ff5252; font-weight: bold; }
+        .pair-item .remove { cursor: pointer; color: #ff5252; font-weight: bold; font-size: 16px; }
+        .pair-item .remove:hover { color: #ff8a80; }
         
         .output {
             background: #1a1a2e;
@@ -144,52 +150,59 @@
             white-space: pre-wrap;
             word-break: break-all;
             color: #00d4ff;
-            font-size: 11px;
+            font-size: 12px;
             max-height: 400px;
             overflow-y: auto;
         }
         
-        .help-text { font-size: 11px; color: #666; margin-top: 3px; }
+        .help-text { 
+            font-size: 12px; 
+            color: #888; 
+            margin-top: 4px; 
+            display: flex;
+            align-items: flex-start;
+            gap: 4px;
+        }
+        .help-text::before { content: "💡"; font-size: 12px; }
+        .help-text.warning { color: #ff9800; }
+        .help-text.warning::before { content: "⚠️"; }
+        .help-text.danger { color: #ff5252; }
+        .help-text.danger::before { content: "🚨"; }
         
-        .toggle { display: flex; align-items: center; gap: 10px; }
+        .toggle { display: flex; align-items: center; gap: 12px; }
         .toggle input {
-            width: 44px;
-            height: 24px;
+            width: 50px;
+            height: 26px;
             -webkit-appearance: none;
             background: #1a1a2e;
-            border-radius: 12px;
+            border-radius: 13px;
             position: relative;
             cursor: pointer;
+            border: 1px solid #3d3d5c;
         }
-        .toggle input:checked { background: #00d4ff; }
+        .toggle input:checked { background: #00d4ff; border-color: #00d4ff; }
         .toggle input::before {
             content: '';
             position: absolute;
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             background: #fff;
             border-radius: 50%;
-            top: 2px;
-            left: 2px;
+            top: 1px;
+            left: 1px;
             transition: 0.3s;
         }
-        .toggle input:checked::before { left: 22px; }
+        .toggle input:checked::before { left: 25px; }
+        .toggle label { margin: 0; cursor: pointer; }
         
         .roi-item {
             display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 10px;
+            margin-bottom: 10px;
             align-items: center;
-            font-size: 12px;
+            font-size: 13px;
         }
         .roi-item input { flex: 1; }
-        .add-btn {
-            background: #3d3d5c;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 11px;
-        }
         
         .toast {
             position: fixed;
@@ -199,7 +212,7 @@
             border-radius: 8px;
             color: #fff;
             font-size: 14px;
-            z-index: 1000;
+            z-index: 1001;
             display: none;
             animation: slideIn 0.3s ease;
         }
@@ -217,7 +230,7 @@
             border-radius: 8px;
             padding: 15px;
             font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 11px;
+            font-size: 12px;
             max-height: 500px;
             overflow-y: auto;
             color: #00ff00;
@@ -228,11 +241,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
+            padding: 12px;
             background: #1a1a2e;
             border-radius: 6px;
             margin-bottom: 8px;
-            font-size: 12px;
+            font-size: 13px;
         }
         
         .loading-overlay {
@@ -261,9 +274,127 @@
         .main-content { display: none; }
         .main-content.show { display: block; }
         
+        .pair-selector {
+            position: relative;
+            margin-top: 10px;
+        }
+        .pair-input-row {
+            display: flex;
+            gap: 10px;
+        }
+        .pair-input-row input {
+            flex: 1;
+        }
+        .pair-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #2d2d44;
+            border: 1px solid #3d3d5c;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            margin-top: 5px;
+        }
+        .pair-dropdown.show { display: block; }
+        .pair-category {
+            padding: 8px 12px;
+            background: #1a1a2e;
+            color: #00d4ff;
+            font-size: 12px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+        .pair-option {
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            border-bottom: 1px solid #3d3d5c;
+        }
+        .pair-option:hover { background: #3d3d5c; }
+        .pair-option .pair-name { font-weight: 500; }
+        .pair-option .pair-price { color: #888; font-size: 12px; }
+        .pair-option.selected { background: #00d4ff; color: #1a1a2e; }
+        .pair-option.selected .pair-price { color: #1a1a2e; }
+        
+        .quick-add {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .quick-add-btn {
+            padding: 6px 12px;
+            background: #3d3d5c;
+            border: 1px solid #4d4d6c;
+            border-radius: 15px;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-add-btn:hover { background: #00d4ff; color: #1a1a2e; border-color: #00d4ff; }
+        .quick-add-btn.added { background: #00c853; border-color: #00c853; }
+        
+        .info-box {
+            background: #1a1a2e;
+            border: 1px solid #3d3d5c;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .info-box h4 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .info-box p {
+            color: #aaa;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .info-box ul {
+            color: #aaa;
+            font-size: 13px;
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        
+        .mode-card {
+            background: #1a1a2e;
+            border: 2px solid #3d3d5c;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .mode-card:hover { border-color: #00d4ff; }
+        .mode-card.selected { border-color: #00d4ff; background: rgba(0, 212, 255, 0.1); }
+        .mode-card h4 { color: #00d4ff; margin-bottom: 8px; font-size: 16px; }
+        .mode-card p { color: #888; font-size: 12px; }
+        .mode-card.danger { border-color: #ff5252; }
+        .mode-card.danger:hover { border-color: #ff5252; background: rgba(255, 82, 82, 0.1); }
+        .mode-card.danger.selected { border-color: #ff5252; background: rgba(255, 82, 82, 0.1); }
+        .mode-card.danger h4 { color: #ff5252; }
+        
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
         @media (max-width: 768px) {
             .row { grid-template-columns: 1fr; }
             .header-bar { flex-direction: column; gap: 10px; }
+            .mode-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -271,7 +402,6 @@
     <div class="container">
         <h1>🤖 FreqTrade 配置管理器</h1>
         
-        <!-- 登录界面 -->
         <div id="login-container" class="login-container">
             <h2>🔐 登录</h2>
             <div class="form-group">
@@ -285,17 +415,16 @@
             <button class="btn btn-primary" onclick="login()">登录</button>
         </div>
         
-        <!-- 主界面 -->
         <div id="main-content" class="main-content">
             <div class="header-bar">
                 <div>
-                    <span>状态: </span>
+                    <span>运行状态: </span>
                     <span id="status-badge" class="status-badge status-loading">检测中...</span>
                 </div>
                 <div>
                     <button class="btn btn-danger" onclick="logout()">🚪 退出</button>
-                    <button class="btn btn-warning" onclick="restartFreqtrade()">🔄 重启</button>
-                    <button class="btn btn-primary" onclick="loadConfig()">📥 加载</button>
+                    <button class="btn btn-warning" onclick="restartFreqtrade()">🔄 重启机器人</button>
+                    <button class="btn btn-primary" onclick="loadConfig()">📥 加载配置</button>
                     <button class="btn btn-success" onclick="saveAndRestart()">💾 保存并重启</button>
                 </div>
             </div>
@@ -311,289 +440,358 @@
                 <button class="tab" onclick="showPanel('export')">📁 导出</button>
             </div>
 
-            <!-- 基本设置 -->
             <div id="basic" class="panel active">
+                <div class="info-box">
+                    <h4>📌 新手必读</h4>
+                    <p>这里是机器人的基本设置。建议新手先用<strong>模拟模式</strong>运行，熟悉后再开启实盘交易。</p>
+                </div>
+
                 <div class="section">
-                    <h3 class="section-title">交易设置</h3>
+                    <h3 class="section-title">💰 资金管理</h3>
                     <div class="row">
                         <div class="form-group">
                             <label>最大同时持仓数</label>
                             <input type="number" id="max_open_trades" value="3" min="1" max="20">
-                            <span class="help-text">同时最多持有几个交易对</span>
+                            <span class="help-text">机器人同时最多持有几个币。建议 2-5 个，太多风险分散难管理。</span>
                         </div>
                         <div class="form-group">
                             <label>每笔交易金额 (USDT)</label>
-                            <input type="number" id="stake_amount" value="30" min="1">
+                            <input type="number" id="stake_amount" value="30" min="1" step="1">
+                            <span class="help-text">每次买入花费多少 USDT。新手建议 20-50 USDT 试水。</span>
                         </div>
                         <div class="form-group">
-                            <label>可交易余额比例</label>
+                            <label>可用余额比例</label>
                             <input type="number" id="tradable_balance_ratio" value="0.99" min="0.1" max="1" step="0.01">
+                            <span class="help-text">使用账户多少比例的钱交易。0.99 = 99%，留 1% 备用。</span>
                         </div>
                     </div>
                 </div>
                 
                 <div class="section">
-                    <h3 class="section-title">K线周期</h3>
+                    <h3 class="section-title">📅 时间周期</h3>
                     <div class="row">
                         <div class="form-group">
-                            <label>时间周期</label>
+                            <label>K线时间周期</label>
                             <select id="timeframe">
-                                <option value="1m">1分钟</option>
-                                <option value="5m" selected>5分钟</option>
-                                <option value="15m">15分钟</option>
-                                <option value="1h">1小时</option>
-                                <option value="4h">4小时</option>
-                                <option value="1d">1天</option>
+                                <option value="1m">1分钟 (高频交易，风险高)</option>
+                                <option value="5m" selected>5分钟 (推荐新手)</option>
+                                <option value="15m">15分钟 (稳健)</option>
+                                <option value="1h">1小时 (中长线)</option>
+                                <option value="4h">4小时 (长线)</option>
+                                <option value="1d">1天 (超长线)</option>
                             </select>
+                            <span class="help-text">时间周期越短，交易越频繁，风险越高。新手建议 5m 或 15m。</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="section">
-                    <h3 class="section-title">运行模式</h3>
-                    <div class="form-group">
-                        <div class="toggle">
-                            <input type="checkbox" id="dry_run" checked>
-                            <label>模拟交易模式 (推荐先测试)</label>
+                    <h3 class="section-title">🎮 运行模式</h3>
+                    <div class="mode-grid">
+                        <div class="mode-card selected" onclick="setMode(true)">
+                            <h4>🧪 模拟交易</h4>
+                            <p>使用虚拟资金测试策略</p>
+                            <p style="color: #00c853; margin-top: 8px;">✓ 推荐新手使用</p>
                         </div>
-                        <span class="help-text" style="color: #ff9800;">⚠️ 关闭后将使用真实资金交易！</span>
+                        <div class="mode-card danger" onclick="setMode(false)">
+                            <h4>💰 实盘交易</h4>
+                            <p>使用真实资金进行交易</p>
+                            <p style="color: #ff5252; margin-top: 8px;">⚠️ 有亏损风险</p>
+                        </div>
                     </div>
+                    <input type="checkbox" id="dry_run" checked style="display: none;">
+                    <span class="help-text warning" id="mode-warning" style="margin-top: 15px;">当前为模拟模式，不会使用真实资金。</span>
                 </div>
             </div>
 
-            <!-- 交易所设置 -->
             <div id="exchange" class="panel">
+                <div class="info-box">
+                    <h4>📌 交易所设置说明</h4>
+                    <ul>
+                        <li><strong>API Key/Secret</strong>：从交易所官网申请，需要"交易"权限</li>
+                        <li><strong>交易对白名单</strong>：机器人只会交易这些币种</li>
+                        <li><strong>交易对黑名单</strong>：机器人不会交易这些币种</li>
+                    </ul>
+                </div>
+
                 <div class="section">
-                    <h3 class="section-title">交易所选择</h3>
+                    <h3 class="section-title">🏦 选择交易所</h3>
                     <div class="row">
                         <div class="form-group">
                             <label>交易所</label>
-                            <select id="exchange_name" onchange="updatePairs()">
-                                <option value="binance">Binance (币安)</option>
-                                <option value="bitget">Bitget</option>
-                                <option value="bybit">Bybit</option>
-                                <option value="okx">OKX</option>
+                            <select id="exchange_name" onchange="updateExchangeInfo()">
+                                <option value="binance">Binance (币安) - 全球最大</option>
+                                <option value="bitget">Bitget - 合约交易</option>
+                                <option value="bybit">Bybit - 衍生品交易</option>
+                                <option value="okx">OKX (欧易)</option>
                                 <option value="gate">Gate.io</option>
                                 <option value="kraken">Kraken</option>
                             </select>
+                            <span class="help-text">选择你已有账户的交易所。</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="section">
-                    <h3 class="section-title">API 密钥</h3>
+                    <h3 class="section-title">🔑 API 密钥配置</h3>
                     <div class="row">
                         <div class="form-group">
                             <label>API Key</label>
-                            <input type="text" id="api_key" placeholder="输入你的 API Key">
+                            <input type="text" id="api_key" placeholder="粘贴你的 API Key">
+                            <span class="help-text">从交易所 API 管理页面获取</span>
                         </div>
                         <div class="form-group">
                             <label>API Secret</label>
-                            <input type="password" id="api_secret" placeholder="输入你的 API Secret">
+                            <input type="password" id="api_secret" placeholder="粘贴你的 API Secret">
+                            <span class="help-text">保密！不要泄露给任何人</span>
                         </div>
                     </div>
                     <div class="row">
                         <div class="form-group">
-                            <label>API Passphrase (Bitget/OKX需要)</label>
-                            <input type="password" id="exchange_password" placeholder="可选">
+                            <label>API Passphrase (口令)</label>
+                            <input type="password" id="exchange_password" placeholder="Bitget/OKX 需要填写">
+                            <span class="help-text">只有 Bitget 和 OKX 需要填写此项</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="section">
-                    <h3 class="section-title">交易对白名单</h3>
-                    <div class="form-group">
-                        <div class="row">
-                            <input type="text" id="new_pair" placeholder="例如: BTC/USDT">
+                    <h3 class="section-title">✅ 交易对白名单</h3>
+                    <span class="help-text" style="margin-bottom: 10px;">添加你想要机器人交易的币种。建议选择主流币种，流动性好、风险相对较低。</span>
+                    
+                    <div class="pair-selector">
+                        <div class="pair-input-row">
+                            <input type="text" id="new_pair" placeholder="输入交易对，如 BTC/USDT" oninput="filterPairs()" onfocus="showPairDropdown()">
                             <button class="btn btn-primary" onclick="addPair()">添加</button>
                         </div>
+                        <div class="pair-dropdown" id="pair_dropdown"></div>
                     </div>
-                    <div class="pair-list" id="pair_list"></div>
+                    
+                    <div style="margin-top: 15px;">
+                        <span style="font-size: 13px; color: #888;">🔥 热门推荐 (点击快速添加)：</span>
+                        <div class="quick-add" id="quick_add_list"></div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <span style="font-size: 13px; color: #888;">已添加的交易对：</span>
+                    </div>
+                    <div class="pair-list" id="pair_list">
+                        <span style="color: #666; font-size: 13px;">暂未添加任何交易对</span>
+                    </div>
                 </div>
 
                 <div class="section">
-                    <h3 class="section-title">交易对黑名单</h3>
-                    <div class="form-group">
-                        <div class="row">
-                            <input type="text" id="new_black_pair" placeholder="例如: BNB/.*">
-                            <button class="btn btn-warning" onclick="addBlackPair()">添加</button>
-                        </div>
+                    <h3 class="section-title">❌ 交易对黑名单</h3>
+                    <span class="help-text" style="margin-bottom: 10px;">添加你不想交易的币种。可以用正则表达式，如 BNB/.* 表示排除所有 BNB 开头的交易对。</span>
+                    
+                    <div class="pair-input-row">
+                        <input type="text" id="new_black_pair" placeholder="输入要排除的交易对">
+                        <button class="btn btn-warning" onclick="addBlackPair()">添加</button>
                     </div>
-                    <div class="pair-list" id="black_pair_list"></div>
+                    
+                    <div class="pair-list" id="black_pair_list">
+                        <span style="color: #666; font-size: 13px;">暂未添加黑名单</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- 策略参数 -->
             <div id="strategy" class="panel">
+                <div class="info-box">
+                    <h4>📌 策略说明</h4>
+                    <p>策略决定了机器人何时买入、何时卖出。新手建议使用默认策略，熟悉后再自定义。</p>
+                </div>
+
                 <div class="section">
-                    <h3 class="section-title">策略选择</h3>
+                    <h3 class="section-title">📊 选择策略</h3>
                     <div class="row">
                         <div class="form-group">
                             <label>策略名称</label>
                             <select id="strategy_name"></select>
+                            <span class="help-text">选择一个已上传的策略文件</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="section">
-                    <h3 class="section-title">RSI 参数</h3>
+                    <h3 class="section-title">📈 RSI 指标参数</h3>
+                    <span class="help-text" style="margin-bottom: 15px;">RSI 是判断超买超卖的指标。值越低越适合买入，值越高越适合卖出。</span>
                     <div class="row">
                         <div class="form-group">
                             <label>RSI 买入阈值</label>
                             <input type="number" id="buy_rsi" value="30" min="1" max="50">
-                            <span class="help-text">RSI低于此值时考虑买入</span>
+                            <span class="help-text">RSI 低于此值时考虑买入。30 表示超卖，适合抄底。</span>
                         </div>
                         <div class="form-group">
                             <label>RSI 卖出阈值</label>
                             <input type="number" id="sell_rsi" value="70" min="50" max="100">
+                            <span class="help-text">RSI 高于此值时考虑卖出。70 表示超买，适合止盈。</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="section">
-                    <h3 class="section-title">订单设置</h3>
+                    <h3 class="section-title">📝 订单类型</h3>
                     <div class="row">
                         <div class="form-group">
                             <label>买入订单类型</label>
                             <select id="order_type_entry">
-                                <option value="limit">限价单</option>
-                                <option value="market">市价单</option>
+                                <option value="limit">限价单 (指定价格买入)</option>
+                                <option value="market">市价单 (立即成交)</option>
                             </select>
+                            <span class="help-text">限价单可以控制价格，但可能不成交</span>
                         </div>
                         <div class="form-group">
                             <label>卖出订单类型</label>
                             <select id="order_type_exit">
-                                <option value="limit">限价单</option>
-                                <option value="market">市价单</option>
+                                <option value="limit">限价单 (指定价格卖出)</option>
+                                <option value="market">市价单 (立即成交)</option>
                             </select>
+                            <span class="help-text">市价单成交快，但价格可能不理想</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 风险控制 -->
             <div id="risk" class="panel">
+                <div class="info-box">
+                    <h4>📌 风险控制说明</h4>
+                    <p>止损止盈是保护资金的重要手段。<strong>强烈建议设置止损</strong>，避免单笔亏损过大。</p>
+                </div>
+
                 <div class="section">
-                    <h3 class="section-title">止损设置</h3>
+                    <h3 class="section-title">🛡️ 止损设置</h3>
                     <div class="row">
                         <div class="form-group">
                             <label>止损比例 (%)</label>
-                            <input type="number" id="stoploss" value="-10" min="-50" max="0">
-                            <span class="help-text">例如 -10 表示亏损10%止损</span>
+                            <input type="number" id="stoploss" value="-10" min="-50" max="0" step="1">
+                            <span class="help-text danger">亏损达到这个比例自动卖出。如 -10 表示亏损 10% 止损。建议 -5 到 -15。</span>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="margin-top: 15px;">
                         <div class="toggle">
                             <input type="checkbox" id="trailing_stop">
-                            <label>启用追踪止损</label>
+                            <label for="trailing_stop">启用追踪止损</label>
                         </div>
+                        <span class="help-text">价格上涨时，止损线跟随上移，锁定更多利润。</span>
                     </div>
-                    <div class="row" id="trailing_options" style="display:none;">
+                    <div class="row" id="trailing_options" style="display:none; margin-top: 15px;">
                         <div class="form-group">
-                            <label>追踪止损正偏移 (%)</label>
+                            <label>追踪止损偏移 (%)</label>
                             <input type="number" id="trailing_stop_positive" value="2" step="0.5">
+                            <span class="help-text">价格回撤多少触发止损</span>
                         </div>
                         <div class="form-group">
-                            <label>追踪止损偏移阈值 (%)</label>
+                            <label>触发阈值 (%)</label>
                             <input type="number" id="trailing_stop_positive_offset" value="3" step="0.5">
+                            <span class="help-text">盈利多少后开始追踪</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="section">
-                    <h3 class="section-title">止盈设置 (ROI)</h3>
+                    <h3 class="section-title">🎯 止盈设置 (ROI)</h3>
+                    <span class="help-text" style="margin-bottom: 15px;">设置不同时间段的盈利目标，达到目标自动卖出。</span>
                     <div id="roi_list"></div>
-                    <button class="btn btn-primary" onclick="addROI()">添加止盈规则</button>
+                    <button class="btn btn-secondary" onclick="addROI()">+ 添加止盈规则</button>
                 </div>
 
                 <div class="section">
-                    <h3 class="section-title">超时设置</h3>
+                    <h3 class="section-title">⏰ 订单超时</h3>
                     <div class="row">
                         <div class="form-group">
                             <label>买入超时 (分钟)</label>
-                            <input type="number" id="entry_timeout" value="10">
+                            <input type="number" id="entry_timeout" value="10" min="1">
+                            <span class="help-text">限价单多久未成交自动取消</span>
                         </div>
                         <div class="form-group">
                             <label>卖出超时 (分钟)</label>
-                            <input type="number" id="exit_timeout" value="10">
+                            <input type="number" id="exit_timeout" value="10" min="1">
+                            <span class="help-text">卖出订单多久未成交自动取消</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- API设置 -->
             <div id="api" class="panel">
+                <div class="info-box">
+                    <h4>📌 API 和通知设置</h4>
+                    <p>Web UI 让你可以通过网页查看机器人状态。Telegram 通知可以让你收到交易提醒。</p>
+                </div>
+
                 <div class="section">
-                    <h3 class="section-title">Web UI 设置</h3>
+                    <h3 class="section-title">🌐 Web UI 设置</h3>
                     <div class="row">
                         <div class="form-group">
                             <label>用户名</label>
                             <input type="text" id="api_username" value="freqtrade">
+                            <span class="help-text">登录 FreqTrade Web UI 的用户名</span>
                         </div>
                         <div class="form-group">
                             <label>密码</label>
                             <input type="text" id="api_password" value="">
+                            <span class="help-text">登录 FreqTrade Web UI 的密码</span>
                         </div>
                         <div class="form-group">
                             <label>端口</label>
                             <input type="number" id="api_port" value="8080">
+                            <span class="help-text">Web UI 访问端口，一般不需要改</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="section">
-                    <h3 class="section-title">Telegram 通知</h3>
+                    <h3 class="section-title">📱 Telegram 通知</h3>
                     <div class="form-group">
                         <div class="toggle">
                             <input type="checkbox" id="telegram_enabled">
-                            <label>启用 Telegram 通知</label>
+                            <label for="telegram_enabled">启用 Telegram 通知</label>
                         </div>
+                        <span class="help-text">开启后，机器人会在 Telegram 发送交易通知</span>
                     </div>
-                    <div class="row" id="telegram_options" style="display:none;">
+                    <div class="row" id="telegram_options" style="display:none; margin-top: 15px;">
                         <div class="form-group">
                             <label>Bot Token</label>
                             <input type="text" id="telegram_token" placeholder="从 @BotFather 获取">
+                            <span class="help-text">在 Telegram 搜索 @BotFather 创建机器人获取</span>
                         </div>
                         <div class="form-group">
                             <label>Chat ID</label>
                             <input type="text" id="telegram_chat_id" placeholder="你的 Telegram Chat ID">
+                            <span class="help-text">在 Telegram 搜索 @userinfobot 获取</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 备份管理 -->
             <div id="backups" class="panel">
                 <div class="section">
-                    <h3 class="section-title">配置备份</h3>
-                    <button class="btn btn-primary" onclick="loadBackups()">刷新备份列表</button>
+                    <h3 class="section-title">📦 配置备份</h3>
+                    <button class="btn btn-primary" onclick="loadBackups()">🔄 刷新备份列表</button>
                     <div class="backup-list" id="backup_list" style="margin-top: 15px;"></div>
                 </div>
             </div>
 
-            <!-- 日志查看 -->
             <div id="logs" class="panel">
                 <div class="section">
-                    <h3 class="section-title">运行日志</h3>
+                    <h3 class="section-title">📋 运行日志</h3>
                     <div class="row">
                         <div class="form-group">
                             <label>显示行数</label>
                             <input type="number" id="log_lines" value="100" min="10" max="1000">
                         </div>
                     </div>
-                    <button class="btn btn-primary" onclick="loadLogs()">加载日志</button>
-                    <button class="btn btn-warning" onclick="loadLogs()">🔄 刷新</button>
+                    <button class="btn btn-primary" onclick="loadLogs()">📥 加载日志</button>
+                    <button class="btn btn-secondary" onclick="loadLogs()">🔄 刷新</button>
                     <div class="log-viewer" id="log_viewer" style="margin-top: 15px;">点击上方按钮加载日志...</div>
                 </div>
             </div>
 
-            <!-- 导出配置 -->
             <div id="export" class="panel">
                 <div class="section">
-                    <h3 class="section-title">配置预览</h3>
+                    <h3 class="section-title">📁 配置预览与导出</h3>
                     <button class="btn btn-success" onclick="generateConfig()">生成配置</button>
-                    <button class="btn btn-primary" onclick="copyConfig()">复制配置</button>
-                    <button class="btn btn-warning" onclick="downloadConfig()">下载配置</button>
+                    <button class="btn btn-primary" onclick="copyConfig()">📋 复制配置</button>
+                    <button class="btn btn-secondary" onclick="downloadConfig()">⬇️ 下载配置</button>
                 </div>
                 <div class="output">
                     <pre id="config_output">点击"生成配置"预览...</pre>
@@ -613,6 +811,56 @@
         let blackPairs = [];
         let isLoggedIn = false;
         let authHeader = '';
+
+        const POPULAR_PAIRS = {
+            'binance': [
+                { name: 'BTC/USDT', desc: '比特币' },
+                { name: 'ETH/USDT', desc: '以太坊' },
+                { name: 'BNB/USDT', desc: '币安币' },
+                { name: 'SOL/USDT', desc: 'Solana' },
+                { name: 'XRP/USDT', desc: '瑞波币' },
+                { name: 'DOGE/USDT', desc: '狗狗币' },
+                { name: 'ADA/USDT', desc: '艾达币' },
+                { name: 'AVAX/USDT', desc: '雪崩' },
+                { name: 'MATIC/USDT', desc: 'Polygon' },
+                { name: 'DOT/USDT', desc: '波卡' }
+            ],
+            'bitget': [
+                { name: 'BTC/USDT', desc: '比特币' },
+                { name: 'ETH/USDT', desc: '以太坊' },
+                { name: 'SOL/USDT', desc: 'Solana' },
+                { name: 'XRP/USDT', desc: '瑞波币' },
+                { name: 'DOGE/USDT', desc: '狗狗币' }
+            ],
+            'bybit': [
+                { name: 'BTC/USDT', desc: '比特币' },
+                { name: 'ETH/USDT', desc: '以太坊' },
+                { name: 'SOL/USDT', desc: 'Solana' },
+                { name: 'XRP/USDT', desc: '瑞波币' },
+                { name: 'DOGE/USDT', desc: '狗狗币' }
+            ],
+            'okx': [
+                { name: 'BTC/USDT', desc: '比特币' },
+                { name: 'ETH/USDT', desc: '以太坊' },
+                { name: 'SOL/USDT', desc: 'Solana' },
+                { name: 'XRP/USDT', desc: '瑞波币' },
+                { name: 'DOGE/USDT', desc: '狗狗币' }
+            ],
+            'gate': [
+                { name: 'BTC/USDT', desc: '比特币' },
+                { name: 'ETH/USDT', desc: '以太坊' },
+                { name: 'GT/USDT', desc: 'GateToken' },
+                { name: 'SOL/USDT', desc: 'Solana' },
+                { name: 'DOGE/USDT', desc: '狗狗币' }
+            ],
+            'kraken': [
+                { name: 'BTC/USDT', desc: '比特币' },
+                { name: 'ETH/USDT', desc: '以太坊' },
+                { name: 'SOL/USDT', desc: 'Solana' },
+                { name: 'XRP/USDT', desc: '瑞波币' },
+                { name: 'DOGE/USDT', desc: '狗狗币' }
+            ]
+        };
 
         function showLoading() { document.getElementById('loading').classList.add('show'); }
         function hideLoading() { document.getElementById('loading').classList.remove('show'); }
@@ -649,6 +897,7 @@
             checkStatus();
             loadConfig();
             loadStrategies();
+            updateQuickAddList();
         }
 
         function logout() {
@@ -717,7 +966,10 @@
             document.getElementById('stake_amount').value = config.stake_amount || 30;
             document.getElementById('tradable_balance_ratio').value = config.tradable_balance_ratio || 0.99;
             document.getElementById('timeframe').value = config.timeframe || '5m';
-            document.getElementById('dry_run').checked = config.dry_run !== false;
+            
+            const dryRun = config.dry_run !== false;
+            document.getElementById('dry_run').checked = dryRun;
+            updateModeDisplay(dryRun);
 
             if (config.exchange) {
                 document.getElementById('exchange_name').value = config.exchange.name || 'binance';
@@ -728,6 +980,7 @@
                 blackPairs = config.exchange.pair_blacklist || [];
                 updatePairList();
                 updateBlackPairList();
+                updateQuickAddList();
             }
 
             if (config.api_server) {
@@ -746,6 +999,32 @@
             if (config.unfilledtimeout) {
                 document.getElementById('entry_timeout').value = config.unfilledtimeout.entry || 10;
                 document.getElementById('exit_timeout').value = config.unfilledtimeout.exit || 10;
+            }
+        }
+
+        function setMode(isDryRun) {
+            document.getElementById('dry_run').checked = isDryRun;
+            updateModeDisplay(isDryRun);
+            
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            if (isDryRun) {
+                document.querySelector('.mode-card:not(.danger)').classList.add('selected');
+            } else {
+                document.querySelector('.mode-card.danger').classList.add('selected');
+            }
+        }
+
+        function updateModeDisplay(isDryRun) {
+            const warning = document.getElementById('mode-warning');
+            if (isDryRun) {
+                warning.textContent = '当前为模拟模式，不会使用真实资金。';
+                warning.className = 'help-text warning';
+            } else {
+                warning.textContent = '⚠️ 当前为实盘模式！将使用真实资金交易，请确保你已了解风险！';
+                warning.className = 'help-text danger';
             }
         }
 
@@ -847,7 +1126,7 @@
         }
 
         async function restartFreqtrade() {
-            if (!confirm('确定要重启 FreqTrade 吗？')) return;
+            if (!confirm('确定要重启 FreqTrade 吗？重启期间机器人将暂停交易。')) return;
             
             showLoading();
             try {
@@ -896,7 +1175,7 @@
         }
 
         async function restoreBackup(filename) {
-            if (!confirm(`确定要恢复备份 ${filename} 吗？`)) return;
+            if (!confirm(`确定要恢复备份 ${filename} 吗？当前配置将被覆盖。`)) return;
             
             showLoading();
             try {
@@ -930,16 +1209,132 @@
                 const res = await apiFetch(`${API_BASE}/api/strategies`);
                 const data = await res.json();
                 const select = document.getElementById('strategy_name');
-                select.innerHTML = data.strategies.map(s => 
-                    `<option value="${s.name}">${s.name}</option>`
-                ).join('');
+                if (data.strategies && data.strategies.length > 0) {
+                    select.innerHTML = data.strategies.map(s => 
+                        `<option value="${s.name}">${s.name}</option>`
+                    ).join('');
+                } else {
+                    select.innerHTML = '<option value="">暂无策略</option>';
+                }
             } catch (e) {
                 console.error('加载策略列表失败');
             }
         }
 
+        function updateQuickAddList() {
+            const exchange = document.getElementById('exchange_name').value;
+            const popularPairs = POPULAR_PAIRS[exchange] || POPULAR_PAIRS['binance'];
+            const container = document.getElementById('quick_add_list');
+            
+            container.innerHTML = popularPairs.map(p => {
+                const isAdded = pairs.includes(p.name);
+                return `<button class="quick-add-btn ${isAdded ? 'added' : ''}" onclick="quickAddPair('${p.name}')">${p.name} ${isAdded ? '✓' : ''}</button>`;
+            }).join('');
+        }
+
+        function quickAddPair(pairName) {
+            if (!pairs.includes(pairName)) {
+                pairs.push(pairName);
+                updatePairList();
+                updateQuickAddList();
+                showToast(`已添加 ${pairName}`);
+            } else {
+                showToast(`${pairName} 已在列表中`, 'warning');
+            }
+        }
+
+        function showPairDropdown() {
+            const dropdown = document.getElementById('pair_dropdown');
+            const exchange = document.getElementById('exchange_name').value;
+            const popularPairs = POPULAR_PAIRS[exchange] || POPULAR_PAIRS['binance'];
+            
+            dropdown.innerHTML = `
+                <div class="pair-category">热门交易对</div>
+                ${popularPairs.map(p => `
+                    <div class="pair-option ${pairs.includes(p.name) ? 'selected' : ''}" onclick="selectPair('${p.name}')">
+                        <span class="pair-name">${p.name}</span>
+                        <span class="pair-price">${p.desc}</span>
+                    </div>
+                `).join('')}
+            `;
+            dropdown.classList.add('show');
+        }
+
+        function filterPairs() {
+            const input = document.getElementById('new_pair').value.toUpperCase();
+            const dropdown = document.getElementById('pair_dropdown');
+            const exchange = document.getElementById('exchange_name').value;
+            const popularPairs = POPULAR_PAIRS[exchange] || POPULAR_PAIRS['binance'];
+            
+            if (!input) {
+                showPairDropdown();
+                return;
+            }
+            
+            const filtered = popularPairs.filter(p => p.name.includes(input));
+            
+            if (filtered.length > 0) {
+                dropdown.innerHTML = `
+                    <div class="pair-category">搜索结果</div>
+                    ${filtered.map(p => `
+                        <div class="pair-option ${pairs.includes(p.name) ? 'selected' : ''}" onclick="selectPair('${p.name}')">
+                            <span class="pair-name">${p.name}</span>
+                            <span class="pair-price">${p.desc}</span>
+                        </div>
+                    `).join('')}
+                `;
+                dropdown.classList.add('show');
+            } else {
+                dropdown.innerHTML = `
+                    <div class="pair-category">自定义交易对</div>
+                    <div class="pair-option" onclick="selectPair('${input}')">
+                        <span class="pair-name">${input}</span>
+                        <span class="pair-price">点击添加</span>
+                    </div>
+                `;
+                dropdown.classList.add('show');
+            }
+        }
+
+        function selectPair(pairName) {
+            document.getElementById('new_pair').value = pairName;
+            document.getElementById('pair_dropdown').classList.remove('show');
+            addPair();
+        }
+
+        function addPair() {
+            const input = document.getElementById('new_pair');
+            const pair = input.value.trim().toUpperCase();
+            
+            if (!pair) {
+                showToast('请输入交易对', 'warning');
+                return;
+            }
+            
+            if (!pair.includes('/')) {
+                showToast('交易对格式应为 XXX/USDT，如 BTC/USDT', 'warning');
+                return;
+            }
+            
+            if (pairs.includes(pair)) {
+                showToast(`${pair} 已在列表中`, 'warning');
+                return;
+            }
+            
+            pairs.push(pair);
+            updatePairList();
+            updateQuickAddList();
+            input.value = '';
+            document.getElementById('pair_dropdown').classList.remove('show');
+            showToast(`已添加 ${pair}`);
+        }
+
         function updatePairList() {
             const list = document.getElementById('pair_list');
+            if (pairs.length === 0) {
+                list.innerHTML = '<span style="color: #666; font-size: 13px;">暂未添加任何交易对</span>';
+                return;
+            }
             list.innerHTML = pairs.map(p => `
                 <div class="pair-item">
                     <span>${p}</span>
@@ -948,8 +1343,39 @@
             `).join('');
         }
 
+        function removePair(pair) {
+            pairs = pairs.filter(p => p !== pair);
+            updatePairList();
+            updateQuickAddList();
+            showToast(`已移除 ${pair}`);
+        }
+
+        function addBlackPair() {
+            const input = document.getElementById('new_black_pair');
+            const pair = input.value.trim();
+            
+            if (!pair) {
+                showToast('请输入要排除的交易对', 'warning');
+                return;
+            }
+            
+            if (blackPairs.includes(pair)) {
+                showToast(`${pair} 已在黑名单中`, 'warning');
+                return;
+            }
+            
+            blackPairs.push(pair);
+            updateBlackPairList();
+            input.value = '';
+            showToast(`已添加到黑名单: ${pair}`);
+        }
+
         function updateBlackPairList() {
             const list = document.getElementById('black_pair_list');
+            if (blackPairs.length === 0) {
+                list.innerHTML = '<span style="color: #666; font-size: 13px;">暂未添加黑名单</span>';
+                return;
+            }
             list.innerHTML = blackPairs.map(p => `
                 <div class="pair-item">
                     <span>${p}</span>
@@ -958,34 +1384,10 @@
             `).join('');
         }
 
-        function addPair() {
-            const input = document.getElementById('new_pair');
-            const pair = input.value.trim().toUpperCase();
-            if (pair && !pairs.includes(pair)) {
-                pairs.push(pair);
-                updatePairList();
-                input.value = '';
-            }
-        }
-
-        function removePair(pair) {
-            pairs = pairs.filter(p => p !== pair);
-            updatePairList();
-        }
-
-        function addBlackPair() {
-            const input = document.getElementById('new_black_pair');
-            const pair = input.value.trim();
-            if (pair && !blackPairs.includes(pair)) {
-                blackPairs.push(pair);
-                updateBlackPairList();
-                input.value = '';
-            }
-        }
-
         function removeBlackPair(pair) {
             blackPairs = blackPairs.filter(p => p !== pair);
             updateBlackPairList();
+            showToast(`已从黑名单移除: ${pair}`);
         }
 
         function addROI() {
@@ -993,11 +1395,11 @@
             const div = document.createElement('div');
             div.className = 'roi-item';
             div.innerHTML = `
-                <input type="number" placeholder="分钟" value="60" class="roi-minutes">
+                <input type="number" placeholder="分钟" value="60" class="roi-minutes" style="width: 80px;">
                 <span>分钟后盈利</span>
-                <input type="number" placeholder="%" value="3" step="0.5" class="roi-profit">
-                <span>%卖出</span>
-                <span class="add-btn" onclick="this.parentElement.remove()">删除</span>
+                <input type="number" placeholder="%" value="3" step="0.5" class="roi-profit" style="width: 80px;">
+                <span>%时卖出</span>
+                <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="this.parentElement.remove()">删除</button>
             `;
             list.appendChild(div);
         }
@@ -1009,17 +1411,27 @@
 
         function copyConfig() {
             const config = document.getElementById('config_output').textContent;
-            navigator.clipboard.writeText(config).then(() => showToast('已复制到剪贴板'));
+            if (config === '点击"生成配置"预览...') {
+                generateConfig();
+            }
+            navigator.clipboard.writeText(document.getElementById('config_output').textContent).then(() => showToast('已复制到剪贴板'));
         }
 
         function downloadConfig() {
             const config = document.getElementById('config_output').textContent;
-            const blob = new Blob([config], { type: 'application/json' });
+            if (config === '点击"生成配置"预览...') {
+                generateConfig();
+            }
+            const blob = new Blob([document.getElementById('config_output').textContent], { type: 'application/json' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = 'config.json';
             a.click();
             showToast('配置已下载');
+        }
+
+        function updateExchangeInfo() {
+            updateQuickAddList();
         }
 
         document.getElementById('trailing_stop').addEventListener('change', function() {
@@ -1032,6 +1444,22 @@
 
         document.getElementById('login_password').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') login();
+        });
+
+        document.getElementById('new_pair').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addPair();
+        });
+
+        document.getElementById('new_black_pair').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addBlackPair();
+        });
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('pair_dropdown');
+            const input = document.getElementById('new_pair');
+            if (!dropdown.contains(e.target) && e.target !== input) {
+                dropdown.classList.remove('show');
+            }
         });
     </script>
 </body>
