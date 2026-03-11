@@ -7,6 +7,8 @@
     "timeframe": "5m",
     "dry_run": true,
     "cancel_open_orders_on_exit": false,
+    "strategy": "SampleStrategy",
+    "stoploss": -0.1,
     "unfilledtimeout": {
         "entry": 10,
         "exit": 10,
