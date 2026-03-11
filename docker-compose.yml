@@ -5,7 +5,7 @@ services:
     container_name: freqtrade
     restart: unless-stopped
     volumes:
-      - freqtrade_data:/freqtrade/user_data
+      - ./user_data:/freqtrade/user_data
     ports:
       - "8080:8080"
     command: >
@@ -20,12 +20,9 @@ services:
     container_name: freqtrade-config
     restart: unless-stopped
     volumes:
-      - freqtrade_data:/freqtrade/user_data
+      - ./user_data:/freqtrade/user_data
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8000:8000"
     environment:
       - TZ=Asia/Shanghai
-
-volumes:
-  freqtrade_data:
