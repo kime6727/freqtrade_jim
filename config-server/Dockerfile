@@ -12,6 +12,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app.py .
 COPY static/ ./static/
 
+COPY init-data.sh /init-data.sh
+RUN chmod +x /init-data.sh
+
 EXPOSE 8000
 
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/bin/bash", "-c", "/init-data.sh && uvicorn app:app --host 0.0.0.0 --port 8000"]
