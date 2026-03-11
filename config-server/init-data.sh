@@ -16,6 +16,7 @@ if [ ! -f "$CONFIG_DIR/config.json" ]; then
     "tradable_balance_ratio": 0.99,
     "timeframe": "5m",
     "dry_run": true,
+    "dry_run_wallet": 1000,
     "strategy": "SampleStrategy",
     "stoploss": -0.1,
     "entry_pricing": {

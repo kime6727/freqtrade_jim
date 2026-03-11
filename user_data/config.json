@@ -6,6 +6,7 @@
     "fiat_display_currency": "CNY",
     "timeframe": "5m",
     "dry_run": true,
+    "dry_run_wallet": 1000,
     "cancel_open_orders_on_exit": false,
     "strategy": "SampleStrategy",
     "stoploss": -0.1,
@@ -38,10 +39,7 @@
         "ccxt_async_config": {},
         "pair_whitelist": [
             "BTC/USDT",
-            "ETH/USDT",
-            "BNB/USDT",
-            "SOL/USDT",
-            "XRP/USDT"
+            "ETH/USDT"
         ],
         "pair_blacklist": []
     },
