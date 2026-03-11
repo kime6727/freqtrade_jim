@@ -296,6 +296,7 @@
                     <button class="btn btn-danger" onclick="logout()">🚪 退出</button>
                     <button class="btn btn-warning" onclick="restartFreqtrade()">🔄 重启</button>
                     <button class="btn btn-primary" onclick="loadConfig()">📥 加载</button>
+                    <button class="btn btn-success" onclick="saveConfigOnly()">💾 仅保存</button>
                     <button class="btn btn-success" onclick="saveAndRestart()">💾 保存并重启</button>
                 </div>
             </div>
@@ -858,6 +859,13 @@
                 return false;
             } finally {
                 hideLoading();
+            }
+        }
+
+        async function saveConfigOnly() {
+            const saved = await saveConfig();
+            if (saved) {
+                showToast('配置已保存，重启后生效！', 'success');
             }
         }
 
