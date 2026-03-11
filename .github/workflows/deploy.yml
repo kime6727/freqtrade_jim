@@ -1,0 +1,26 @@
+name: Deploy to Dokploy
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to Dokploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: 128.1.40.110
+        port: 22
+        username: root
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /opt/dokploy/applications/freqtrade
+          docker-compose pull
+          docker-compose up -d --build
+          docker system prune -f
