@@ -6,16 +6,14 @@ import json
 import os
 import subprocess
 import shutil
-import secrets
 from pathlib import Path
 from typing import Optional
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 
 app = FastAPI(title="FreqTrade 配置管理器")
@@ -28,29 +26,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-security = HTTPBasic()
-
-ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "KJDD9773LJKDkjkj")
-
 CONFIG_PATH = Path("/freqtrade/user_data/config.json")
 BACKUP_DIR = Path("/freqtrade/user_data/backups")
 STRATEGY_DIR = Path("/freqtrade/user_data/strategies")
 
 BACKUP_DIR.mkdir(parents=True, exist_ok=True)
 STRATEGY_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
-    correct_username = secrets.compare_digest(credentials.username, ADMIN_USERNAME)
-    correct_password = secrets.compare_digest(credentials.password, ADMIN_PASSWORD)
-    if not (correct_username and correct_password):
-        raise HTTPException(
-            status_code=401,
-            detail="用户名或密码错误",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    return credentials.username
 
 
 class ConfigModel(BaseModel):
@@ -60,11 +41,6 @@ class ConfigModel(BaseModel):
 class StrategyModel(BaseModel):
     name: str
     content: str
-
-
-class LoginModel(BaseModel):
-    username: str
-    password: str
 
 
 def backup_config():
@@ -110,15 +86,8 @@ async def root():
     return {"message": "FreqTrade 配置管理器 API", "version": "1.0.0"}
 
 
-@app.post("/api/login")
-async def login(login_data: LoginModel):
-    if login_data.username == ADMIN_USERNAME and login_data.password == ADMIN_PASSWORD:
-        return {"success": True, "message": "登录成功"}
-    raise HTTPException(status_code=401, detail="用户名或密码错误")
-
-
 @app.get("/api/config")
-async def get_config(username: str = Depends(verify_credentials)):
+async def get_config():
     if not CONFIG_PATH.exists():
         raise HTTPException(status_code=404, detail="配置文件不存在")
     
@@ -129,7 +98,7 @@ async def get_config(username: str = Depends(verify_credentials)):
 
 
 @app.post("/api/config")
-async def save_config(config_data: ConfigModel, username: str = Depends(verify_credentials)):
+async def save_config(config_data: ConfigModel):
     config = config_data.config
     
     is_valid, message = validate_config(config)
@@ -147,13 +116,13 @@ async def save_config(config_data: ConfigModel, username: str = Depends(verify_c
 
 
 @app.post("/api/config/validate")
-async def validate_config_endpoint(config_data: ConfigModel, username: str = Depends(verify_credentials)):
+async def validate_config_endpoint(config_data: ConfigModel):
     is_valid, message = validate_config(config_data.config)
     return {"valid": is_valid, "message": message}
 
 
 @app.get("/api/backups")
-async def list_backups(username: str = Depends(verify_credentials)):
+async def list_backups():
     backups = []
     for backup_file in sorted(BACKUP_DIR.glob("config_*.json"), reverse=True):
         stat = backup_file.stat()
@@ -166,7 +135,7 @@ async def list_backups(username: str = Depends(verify_credentials)):
 
 
 @app.post("/api/backups/{filename}/restore")
-async def restore_backup(filename: str, username: str = Depends(verify_credentials)):
+async def restore_backup(filename: str):
     backup_file = BACKUP_DIR / filename
     if not backup_file.exists():
         raise HTTPException(status_code=404, detail="备份文件不存在")
@@ -179,7 +148,7 @@ async def restore_backup(filename: str, username: str = Depends(verify_credentia
 
 
 @app.get("/api/strategies")
-async def list_strategies(username: str = Depends(verify_credentials)):
+async def list_strategies():
     strategies = []
     for strategy_file in STRATEGY_DIR.glob("*.py"):
         strategies.append({
@@ -191,7 +160,7 @@ async def list_strategies(username: str = Depends(verify_credentials)):
 
 
 @app.get("/api/strategies/{name}")
-async def get_strategy(name: str, username: str = Depends(verify_credentials)):
+async def get_strategy(name: str):
     strategy_file = STRATEGY_DIR / f"{name}.py"
     if not strategy_file.exists():
         raise HTTPException(status_code=404, detail="策略文件不存在")
@@ -203,7 +172,7 @@ async def get_strategy(name: str, username: str = Depends(verify_credentials)):
 
 
 @app.post("/api/strategies")
-async def save_strategy(strategy_data: StrategyModel, username: str = Depends(verify_credentials)):
+async def save_strategy(strategy_data: StrategyModel):
     if not strategy_data.name.endswith(".py") and not strategy_data.name.endswith(".py"):
         strategy_name = strategy_data.name + ".py"
     else:
@@ -221,7 +190,7 @@ async def save_strategy(strategy_data: StrategyModel, username: str = Depends(ve
 
 
 @app.delete("/api/strategies/{name}")
-async def delete_strategy(name: str, username: str = Depends(verify_credentials)):
+async def delete_strategy(name: str):
     strategy_file = STRATEGY_DIR / f"{name}.py"
     if not strategy_file.exists():
         raise HTTPException(status_code=404, detail="策略文件不存在")
@@ -251,7 +220,7 @@ async def get_status():
 
 
 @app.post("/api/restart")
-async def restart_freqtrade(username: str = Depends(verify_credentials)):
+async def restart_freqtrade():
     try:
         result = subprocess.run(
             ["docker", "restart", "freqtrade"],
@@ -270,7 +239,7 @@ async def restart_freqtrade(username: str = Depends(verify_credentials)):
 
 
 @app.get("/api/logs")
-async def get_logs(lines: int = 100, username: str = Depends(verify_credentials)):
+async def get_logs(lines: int = 100):
     log_file = Path("/freqtrade/user_data/logs/freqtrade.log")
     if not log_file.exists():
         return {"success": True, "logs": "日志文件不存在"}

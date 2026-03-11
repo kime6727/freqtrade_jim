@@ -1,6 +1,6 @@
 FROM freqtradeorg/freqtrade:stable
 
 COPY user_data/config.json /freqtrade/user_data/config.json
-COPY user_data/strategies/ /freqtrade/user_data/strategies/
+COPY user_data/strategies/SampleStrategy.py /freqtrade/user_data/strategies/SampleStrategy.py
 
 RUN mkdir -p /freqtrade/user_data/logs
