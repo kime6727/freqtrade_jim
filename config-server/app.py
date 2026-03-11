@@ -230,12 +230,14 @@ async def restart_freqtrade():
         )
         if result.returncode == 0:
             return {"success": True, "message": "FreqTrade 重启成功"}
-        else:
-            raise HTTPException(status_code=500, detail=f"重启失败: {result.stderr}")
+    except FileNotFoundError:
+        return {"success": False, "message": "Docker 命令不可用，请手动在服务器面板重启容器"}
     except subprocess.TimeoutExpired:
-        raise HTTPException(status_code=500, detail="重启超时")
+        return {"success": False, "message": "重启超时，请手动重启"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"success": False, "message": f"重启失败: {str(e)}"}
+    
+    return {"success": False, "message": "重启命令执行失败，请手动在 Dokploy 面板重启 FreqTrade 容器"}
 
 
 @app.get("/api/logs")

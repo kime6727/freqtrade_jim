@@ -611,6 +611,8 @@
         const API_BASE = window.location.origin;
         let pairs = [];
         let blackPairs = [];
+        let savedJwtSecret = '';
+        let savedWsToken = '';
         let isLoggedIn = false;
         let authHeader = '';
 
@@ -734,6 +736,8 @@
                 document.getElementById('api_username').value = config.api_server.username || 'freqtrade';
                 document.getElementById('api_password').value = config.api_server.password || '';
                 document.getElementById('api_port').value = config.api_server.listen_port || 8080;
+                savedJwtSecret = config.api_server.jwt_secret_key || 'freqtrade_jwt_secret_key_change_me';
+                savedWsToken = config.api_server.ws_token || 'freqtrade_ws_token_change_me';
             }
 
             if (config.telegram) {
@@ -799,8 +803,8 @@
                     listen_ip_address: "0.0.0.0",
                     listen_port: parseInt(document.getElementById('api_port').value),
                     verbosity: "error",
-                    jwt_secret_key: "freqtrade_jwt_" + Math.random().toString(36).substring(7),
-                    ws_token: "freqtrade_ws_" + Math.random().toString(36).substring(7),
+                    jwt_secret_key: savedJwtSecret || 'freqtrade_jwt_secret_key_change_me',
+                    ws_token: savedWsToken || 'freqtrade_ws_token_change_me',
                     CORS_origins: [],
                     username: document.getElementById('api_username').value,
                     password: document.getElementById('api_password').value
@@ -866,9 +870,9 @@
                 const data = await res.json();
                 if (data.success) {
                     showToast('重启成功！');
-                    setTimeout(checkStatus, 3000);
+                    setTimeout(checkStatus, 5000);
                 } else {
-                    showToast('重启失败: ' + data.detail, 'error');
+                    showToast(data.message || '重启失败，请手动在 Dokploy 面板重启', 'error');
                 }
             } catch (e) {
                 showToast('重启失败: ' + e.message, 'error');
