@@ -294,10 +294,10 @@
                 </div>
                 <div>
                     <button class="btn btn-danger" onclick="logout()">🚪 退出</button>
-                    <button class="btn btn-warning" onclick="restartFreqtrade()">🔄 重启</button>
-                    <button class="btn btn-primary" onclick="loadConfig()">📥 加载</button>
+                    <button class="btn btn-warning" onclick="restartFreqtrade()">🔄 重启服务</button>
+                    <button class="btn btn-primary" onclick="loadConfig()">📥 加载配置</button>
                     <button class="btn btn-success" onclick="saveConfigOnly()">💾 仅保存</button>
-                    <button class="btn btn-success" onclick="saveAndRestart()">💾 保存并重启</button>
+                    <button class="btn btn-success" onclick="saveAndHotReload()" style="background: #00c853; font-weight: bold;">⚡ 保存并立即生效</button>
                 </div>
             </div>
             
@@ -886,6 +886,33 @@
                 showToast('重启失败: ' + e.message, 'error');
             }
             hideLoading();
+        }
+
+        async function saveAndHotReload() {
+            showLoading();
+            const config = buildConfig();
+            
+            try {
+                const res = await apiFetch(`${API_BASE}/api/config/save-and-reload`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ config })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (data.reload_status && data.reload_status.success) {
+                        showToast('✅ 配置保存并立即生效！');
+                    } else {
+                        showToast('⚠️ 配置已保存，但热重载失败: ' + (data.reload_status?.message || '未知错误'), 'warning');
+                    }
+                } else {
+                    showToast('保存失败: ' + data.detail, 'error');
+                }
+            } catch (e) {
+                showToast('保存失败: ' + e.message, 'error');
+            } finally {
+                hideLoading();
+            }
         }
 
         async function saveAndRestart() {

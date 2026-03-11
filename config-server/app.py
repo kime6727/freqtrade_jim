@@ -1,11 +1,12 @@
 """
 FreqTrade 配置管理 API
-提供配置读取、保存、验证和重启功能
+提供配置读取、保存、验证和热重载功能
 """
 import json
 import os
 import subprocess
 import shutil
+import httpx
 from pathlib import Path
 from typing import Optional
 from datetime import datetime
@@ -32,6 +33,8 @@ STRATEGY_DIR = Path("/freqtrade/user_data/strategies")
 
 BACKUP_DIR.mkdir(parents=True, exist_ok=True)
 STRATEGY_DIR.mkdir(parents=True, exist_ok=True)
+
+FREQTRADE_API_URL = "http://freqtrade:8080"
 
 
 class ConfigModel(BaseModel):
@@ -81,9 +84,48 @@ def validate_config(config: dict) -> tuple[bool, str]:
     return True, "配置验证通过"
 
 
+async def reload_freqtrade_config() -> dict:
+    """
+    调用 FreqTrade 的 API 重新加载配置（热重载，无需重启）
+    """
+    try:
+        async with httpx.AsyncClient() as client:
+            # 首先尝试获取当前配置来验证 API 是否可用
+            auth = None
+            if CONFIG_PATH.exists():
+                with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+                    config = json.load(f)
+                    api_config = config.get("api_server", {})
+                    username = api_config.get("username", "freqtrade")
+                    password = api_config.get("password", "")
+                    if password:
+                        auth = (username, password)
+            
+            # 调用 FreqTrade 的重载配置 API
+            response = await client.post(
+                f"{FREQTRADE_API_URL}/api/v1/reload_config",
+                auth=auth,
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                return {"success": True, "message": "配置已热重载", "detail": response.json()}
+            elif response.status_code == 401:
+                return {"success": False, "message": "FreqTrade API 认证失败，请检查用户名密码"}
+            else:
+                return {"success": False, "message": f"FreqTrade API 返回错误: {response.status_code}"}
+                
+    except httpx.ConnectError:
+        return {"success": False, "message": "无法连接到 FreqTrade，请确保服务正在运行"}
+    except httpx.TimeoutException:
+        return {"success": False, "message": "FreqTrade API 调用超时"}
+    except Exception as e:
+        return {"success": False, "message": f"热重载失败: {str(e)}"}
+
+
 @app.get("/")
 async def root():
-    return {"message": "FreqTrade 配置管理器 API", "version": "1.0.0"}
+    return {"message": "FreqTrade 配置管理器 API", "version": "2.0.0", "features": ["hot-reload"]}
 
 
 @app.get("/api/config")
@@ -115,10 +157,48 @@ async def save_config(config_data: ConfigModel):
     return {"success": True, "message": "配置保存成功", "backup_created": True}
 
 
+@app.post("/api/config/save-and-reload")
+async def save_and_reload_config(config_data: ConfigModel):
+    """
+    保存配置并立即热重载（无需重启 FreqTrade）
+    """
+    config = config_data.config
+    
+    is_valid, message = validate_config(config)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=message)
+    
+    backup_config()
+    
+    config["_updated_at"] = datetime.now().isoformat()
+    
+    with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+        json.dump(config, f, indent=4, ensure_ascii=False)
+    
+    # 调用 FreqTrade 的热重载 API
+    reload_result = await reload_freqtrade_config()
+    
+    return {
+        "success": True, 
+        "message": "配置保存成功", 
+        "backup_created": True,
+        "reload_status": reload_result
+    }
+
+
 @app.post("/api/config/validate")
 async def validate_config_endpoint(config_data: ConfigModel):
     is_valid, message = validate_config(config_data.config)
     return {"valid": is_valid, "message": message}
+
+
+@app.post("/api/config/reload")
+async def reload_config():
+    """
+    手动触发 FreqTrade 配置热重载
+    """
+    result = await reload_freqtrade_config()
+    return result
 
 
 @app.get("/api/backups")
@@ -144,7 +224,14 @@ async def restore_backup(filename: str):
     
     shutil.copy(backup_file, CONFIG_PATH)
     
-    return {"success": True, "message": f"已恢复备份: {filename}"}
+    # 恢复后自动热重载
+    reload_result = await reload_freqtrade_config()
+    
+    return {
+        "success": True, 
+        "message": f"已恢复备份: {filename}",
+        "reload_status": reload_result
+    }
 
 
 @app.get("/api/strategies")
@@ -221,6 +308,9 @@ async def get_status():
 
 @app.post("/api/restart")
 async def restart_freqtrade():
+    """
+    完全重启 FreqTrade 容器（备用方案）
+    """
     try:
         result = subprocess.run(
             ["docker", "restart", "freqtrade"],
